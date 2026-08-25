@@ -1,0 +1,12 @@
+{
+  "projectName": "体育博物馆智慧化综合管理平台",
+  "shortName": "智慧场馆",
+  "venueName": "体育博物馆",
+  "englishName": "SPORTS MUSEUM",
+  "dataMode": "mock",
+  "version": "Demo 0.2",
+  "theme": {
+    "accent": "#45c5ff",
+    "accentSecondary": "#4be1bd"
+  }
+}

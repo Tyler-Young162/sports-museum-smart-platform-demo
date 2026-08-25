@@ -1,0 +1,899 @@
+{
+  "dashboard": {
+    "dateLabel": "2026年8月24日 · 星期一",
+    "openStatus": "场馆开放运行中",
+    "overviewStats": [
+      { "label": "设备总数", "value": "286", "note": "在线 274", "tone": "cyan" },
+      { "label": "今日告警", "value": "12", "note": "待处理 3", "tone": "orange" },
+      { "label": "待办工单", "value": "8", "note": "即将超时 1", "tone": "purple" },
+      { "label": "今日通行", "value": "1,428", "note": "访客 86", "tone": "green" }
+    ],
+    "trendData": [
+      { "time": "08:00", "alarms": 2, "visitors": 68 },
+      { "time": "09:00", "alarms": 4, "visitors": 176 },
+      { "time": "10:00", "alarms": 3, "visitors": 284 },
+      { "time": "11:00", "alarms": 5, "visitors": 306 },
+      { "time": "12:00", "alarms": 2, "visitors": 218 },
+      { "time": "13:00", "alarms": 3, "visitors": 246 },
+      { "time": "14:00", "alarms": 1, "visitors": 130 }
+    ],
+    "systemStatus": [
+      { "key": "video", "label": "视频监控", "value": "84 / 88", "status": "4台离线", "tone": "warning" },
+      { "key": "access", "label": "门禁通行", "value": "35 / 36", "status": "1台异常", "tone": "warning" },
+      { "key": "network", "label": "无线网络", "value": "62 / 62", "status": "运行正常", "tone": "success" },
+      { "key": "environment", "label": "动环传感", "value": "42 / 42", "status": "运行正常", "tone": "success" }
+    ],
+    "mapSummary": [
+      { "label": "正常", "value": 274, "tone": "normal" },
+      { "label": "异常", "value": 9, "tone": "warning" },
+      { "label": "告警", "value": 3, "tone": "alarm" }
+    ]
+  },
+  "initialAlarms": [
+    {
+      "id": "AL202608240031",
+      "title": "一层东区摄像头离线",
+      "level": "严重",
+      "type": "设备离线",
+      "source": "视频监控系统",
+      "location": "一层·体育发展展区",
+      "device": "CAM-F1-004",
+      "time": "2026-08-24 10:42:18",
+      "status": "待确认",
+      "description": "平台连续30秒未收到设备心跳，摄像头视频流中断，建议检查交换机端口及设备供电。",
+      "timeline": [
+        {
+          "time": "10:42:18",
+          "title": "系统产生告警",
+          "detail": "摄像头连续30秒心跳中断"
+        },
+        {
+          "time": "10:42:22",
+          "title": "消息已通知",
+          "detail": "已通知场馆安防值班人员"
+        }
+      ]
+    },
+    {
+      "id": "AL202608240030",
+      "title": "第一机房温度偏高",
+      "level": "一般",
+      "type": "环境异常",
+      "source": "机房动环系统",
+      "location": "地下一层·第一机房",
+      "device": "TH-B1-001",
+      "time": "2026-08-24 10:36:05",
+      "status": "处理中",
+      "relatedWorkOrder": "WO202608240018",
+      "description": "机房温度达到28.6℃，超过预警阈值28℃，尚未达到严重告警阈值32℃。",
+      "timeline": [
+        {
+          "time": "10:36:05",
+          "title": "温度超过预警阈值",
+          "detail": "TH-B1-001 当前温度28.6℃"
+        },
+        {
+          "time": "10:38:12",
+          "title": "值班人员确认",
+          "detail": "张伟确认告警并检查空调状态"
+        },
+        {
+          "time": "10:40:08",
+          "title": "已创建工单",
+          "detail": "工单WO202608240018已派发"
+        }
+      ]
+    },
+    {
+      "id": "AL202608240029",
+      "title": "访客二维码重复核验",
+      "level": "提示",
+      "type": "异常通行",
+      "source": "人员通行系统",
+      "location": "一层·南门访客通道",
+      "device": "AC-F1-002",
+      "time": "2026-08-24 10:18:36",
+      "status": "处理中",
+      "description": "同一访客二维码在入场后再次尝试核验，系统已拒绝本次通行。",
+      "timeline": [
+        {
+          "time": "10:18:36",
+          "title": "重复二维码被拒绝",
+          "detail": "访客预约单VIS202608240086"
+        },
+        {
+          "time": "10:20:11",
+          "title": "前台确认",
+          "detail": "核实为同行人员误用二维码"
+        }
+      ]
+    },
+    {
+      "id": "AL202608240028",
+      "title": "二层信息发布屏离线",
+      "level": "一般",
+      "type": "设备离线",
+      "source": "信息发布系统",
+      "location": "二层·临时展区入口",
+      "device": "DS-F2-003",
+      "time": "2026-08-24 09:54:09",
+      "status": "处理中",
+      "relatedWorkOrder": "WO202608240017",
+      "description": "信息发布终端超过60秒未上报在线状态，当前节目单无法确认播放状态。",
+      "timeline": [
+        {
+          "time": "09:54:09",
+          "title": "系统产生告警",
+          "detail": "发布终端连接中断"
+        },
+        {
+          "time": "09:56:20",
+          "title": "转为维修工单",
+          "detail": "工单WO202608240017已创建"
+        }
+      ]
+    },
+    {
+      "id": "AL202608240027",
+      "title": "UPS切换至电池供电",
+      "level": "严重",
+      "type": "供电异常",
+      "source": "UPS电源系统",
+      "location": "地下一层·核心机房",
+      "device": "UPS-B1-001",
+      "time": "2026-08-24 09:31:46",
+      "status": "已关闭",
+      "description": "市电瞬时波动，UPS自动切换至电池供电，42秒后市电恢复。",
+      "timeline": [
+        {
+          "time": "09:31:46",
+          "title": "切换电池供电",
+          "detail": "预计备电时间46分钟"
+        },
+        {
+          "time": "09:32:28",
+          "title": "市电恢复",
+          "detail": "UPS恢复在线供电"
+        },
+        {
+          "time": "09:36:10",
+          "title": "告警关闭",
+          "detail": "值班员李强确认设备正常"
+        }
+      ]
+    },
+    {
+      "id": "AL202608240026",
+      "title": "无线AP接入终端过多",
+      "level": "提示",
+      "type": "负载预警",
+      "source": "无线网络系统",
+      "location": "一层·互动体验区",
+      "device": "AP-F1-008",
+      "time": "2026-08-24 09:16:22",
+      "status": "已关闭",
+      "description": "单AP接入终端达到62台，超过建议阈值50台，系统已自动引导部分终端漫游。",
+      "timeline": [
+        {
+          "time": "09:16:22",
+          "title": "AP负载预警",
+          "detail": "当前接入62台终端"
+        },
+        {
+          "time": "09:18:02",
+          "title": "负载自动均衡",
+          "detail": "18台终端迁移至AP-F1-009"
+        },
+        {
+          "time": "09:20:35",
+          "title": "告警自动恢复",
+          "detail": "当前接入44台终端"
+        }
+      ]
+    }
+  ],
+  "initialWorkOrders": [
+    {
+      "id": "WO202608240018",
+      "title": "检查第一机房空调制冷状态",
+      "type": "设备维修",
+      "priority": "高",
+      "department": "设施运维部",
+      "assignee": "张伟",
+      "location": "地下一层·第一机房",
+      "status": "处理中",
+      "createdAt": "2026-08-24 10:40",
+      "dueAt": "2026-08-24 12:40",
+      "progress": 55,
+      "source": "告警AL202608240030"
+    },
+    {
+      "id": "WO202608240017",
+      "title": "恢复二层临时展区发布屏",
+      "type": "设备维修",
+      "priority": "高",
+      "department": "信息技术部",
+      "assignee": "陈磊",
+      "location": "二层·临时展区入口",
+      "status": "处理中",
+      "createdAt": "2026-08-24 09:56",
+      "dueAt": "2026-08-24 13:00",
+      "progress": 35,
+      "source": "告警AL202608240028"
+    },
+    {
+      "id": "WO202608240016",
+      "title": "冠军荣誉厅照明灯具更换",
+      "type": "更换",
+      "priority": "普通",
+      "department": "设施运维部",
+      "assignee": "王海",
+      "location": "二层·冠军荣誉厅",
+      "status": "待验收",
+      "createdAt": "2026-08-24 09:10",
+      "dueAt": "2026-08-24 16:00",
+      "progress": 90,
+      "source": "员工上报"
+    },
+    {
+      "id": "WO202608240015",
+      "title": "互动体验设备每日开馆巡检",
+      "type": "计划巡检",
+      "priority": "普通",
+      "department": "展陈运营部",
+      "assignee": "赵敏",
+      "location": "一层·互动体验区",
+      "status": "已完成",
+      "createdAt": "2026-08-24 08:25",
+      "dueAt": "2026-08-24 09:00",
+      "progress": 100,
+      "source": "巡检计划PL20260801"
+    },
+    {
+      "id": "WO202608240014",
+      "title": "申购访客证打印耗材",
+      "type": "申购",
+      "priority": "普通",
+      "department": "综合管理部",
+      "assignee": "待分配",
+      "location": "一层·访客服务台",
+      "status": "待分配",
+      "createdAt": "2026-08-24 08:05",
+      "dueAt": "2026-08-26 18:00",
+      "progress": 5,
+      "source": "部门申请"
+    }
+  ],
+  "accessRecords": [
+    {
+      "id": "AR2408240108",
+      "time": "10:46:12",
+      "name": "刘雨晴",
+      "personType": "访客",
+      "credential": "预约二维码",
+      "gate": "南门访客通道",
+      "direction": "入场",
+      "result": "通过",
+      "image": "刘"
+    },
+    {
+      "id": "AR2408240107",
+      "time": "10:44:38",
+      "name": "王海",
+      "personType": "员工",
+      "credential": "人脸识别",
+      "gate": "员工通道1",
+      "direction": "入场",
+      "result": "通过",
+      "image": "王"
+    },
+    {
+      "id": "AR2408240106",
+      "time": "10:42:19",
+      "name": "陈晓明",
+      "personType": "施工人员",
+      "credential": "临时二维码",
+      "gate": "北门后勤通道",
+      "direction": "入场",
+      "result": "通过",
+      "image": "陈"
+    },
+    {
+      "id": "AR2408240105",
+      "time": "10:39:52",
+      "name": "未知人员",
+      "personType": "未登记",
+      "credential": "人脸识别",
+      "gate": "办公区门禁",
+      "direction": "入场",
+      "result": "拒绝",
+      "image": "?"
+    },
+    {
+      "id": "AR2408240104",
+      "time": "10:37:04",
+      "name": "赵敏",
+      "personType": "员工",
+      "credential": "人脸识别",
+      "gate": "二层办公区",
+      "direction": "出场",
+      "result": "通过",
+      "image": "赵"
+    },
+    {
+      "id": "AR2408240103",
+      "time": "10:31:26",
+      "name": "周立",
+      "personType": "访客",
+      "credential": "预约二维码",
+      "gate": "南门访客通道",
+      "direction": "入场",
+      "result": "通过",
+      "image": "周"
+    }
+  ],
+  "personnel": [
+    {
+      "id": "P000128",
+      "name": "张伟",
+      "department": "设施运维部",
+      "role": "运维工程师",
+      "phone": "138****3021",
+      "face": "已录入",
+      "vehicles": "粤B·6A21X",
+      "access": "全馆设备区",
+      "status": "在馆"
+    },
+    {
+      "id": "P000136",
+      "name": "赵敏",
+      "department": "展陈运营部",
+      "role": "展陈管理员",
+      "phone": "136****2856",
+      "face": "已录入",
+      "vehicles": "无",
+      "access": "展厅及办公区",
+      "status": "离馆"
+    },
+    {
+      "id": "P000142",
+      "name": "李强",
+      "department": "安保部",
+      "role": "值班主管",
+      "phone": "139****9028",
+      "face": "已录入",
+      "vehicles": "粤B·Q58L7",
+      "access": "全馆",
+      "status": "在馆"
+    },
+    {
+      "id": "P000158",
+      "name": "陈磊",
+      "department": "信息技术部",
+      "role": "系统工程师",
+      "phone": "137****6150",
+      "face": "待更新",
+      "vehicles": "无",
+      "access": "机房及设备区",
+      "status": "在馆"
+    }
+  ],
+  "visitors": [
+    {
+      "id": "VIS202608240086",
+      "name": "刘雨晴",
+      "company": "市体育文化协会",
+      "host": "赵敏",
+      "visitTime": "2026-08-24 10:30",
+      "people": 2,
+      "status": "已入场",
+      "qr": "已核验"
+    },
+    {
+      "id": "VIS202608240087",
+      "name": "何俊峰",
+      "company": "城市建设研究院",
+      "host": "陈磊",
+      "visitTime": "2026-08-24 14:00",
+      "people": 3,
+      "status": "已通过",
+      "qr": "待核验"
+    },
+    {
+      "id": "VIS202608240088",
+      "name": "孙雅婷",
+      "company": "华南师范大学",
+      "host": "赵敏",
+      "visitTime": "2026-08-25 09:30",
+      "people": 8,
+      "status": "待审批",
+      "qr": "未生成"
+    },
+    {
+      "id": "VIS202608240089",
+      "name": "吴志远",
+      "company": "个人参观",
+      "host": "李强",
+      "visitTime": "2026-08-25 15:20",
+      "people": 1,
+      "status": "待审批",
+      "qr": "未生成"
+    }
+  ],
+  "vehicles": [
+    {
+      "id": "VR2408240068",
+      "plate": "粤B·6A21X",
+      "owner": "张伟",
+      "type": "员工车辆",
+      "gate": "东侧车辆入口",
+      "enter": "08:16:20",
+      "leave": "--",
+      "status": "在场"
+    },
+    {
+      "id": "VR2408240067",
+      "plate": "粤B·Q58L7",
+      "owner": "李强",
+      "type": "员工车辆",
+      "gate": "东侧车辆入口",
+      "enter": "07:48:06",
+      "leave": "--",
+      "status": "在场"
+    },
+    {
+      "id": "VR2408240066",
+      "plate": "粤A·3K82P",
+      "owner": "刘雨晴",
+      "type": "访客车辆",
+      "gate": "南侧访客入口",
+      "enter": "10:28:42",
+      "leave": "--",
+      "status": "在场"
+    },
+    {
+      "id": "VR2408240065",
+      "plate": "粤B·D9023",
+      "owner": "物流配送",
+      "type": "临时车辆",
+      "gate": "北门后勤入口",
+      "enter": "09:12:18",
+      "leave": "09:46:50",
+      "status": "已离场"
+    }
+  ],
+  "displayScreens": [
+    {
+      "id": "DS-F1-001",
+      "name": "序厅主屏",
+      "location": "一层·序厅正面",
+      "resolution": "3840×2160",
+      "group": "公共展区",
+      "status": "在线",
+      "current": "今日参观导览",
+      "lastSync": "10:46:02"
+    },
+    {
+      "id": "DS-F1-002",
+      "name": "互动区导览屏",
+      "location": "一层·互动体验区入口",
+      "resolution": "1920×1080",
+      "group": "公共展区",
+      "status": "在线",
+      "current": "互动项目使用提示",
+      "lastSync": "10:45:58"
+    },
+    {
+      "id": "DS-F2-001",
+      "name": "冠军厅入口屏",
+      "location": "二层·冠军荣誉厅",
+      "resolution": "1920×1080",
+      "group": "专题展区",
+      "status": "在线",
+      "current": "中国体育冠军专题",
+      "lastSync": "10:45:55"
+    },
+    {
+      "id": "DS-F2-003",
+      "name": "临展区发布屏",
+      "location": "二层·临时展区入口",
+      "resolution": "3840×1080",
+      "group": "临时展区",
+      "status": "离线",
+      "current": "城市体育记忆特展",
+      "lastSync": "09:53:44"
+    }
+  ],
+  "publishingTasks": [
+    {
+      "id": "PUB202608240021",
+      "name": "午间参观温馨提示",
+      "screens": "公共展区 2屏",
+      "schedule": "2026-08-24 12:00",
+      "creator": "赵敏",
+      "status": "待发布"
+    },
+    {
+      "id": "PUB202608240020",
+      "name": "今日开馆导览",
+      "screens": "全馆 4屏",
+      "schedule": "2026-08-24 08:50",
+      "creator": "赵敏",
+      "status": "播放中"
+    },
+    {
+      "id": "PUB202608230018",
+      "name": "城市体育记忆特展",
+      "screens": "临时展区 1屏",
+      "schedule": "2026-08-23 09:00",
+      "creator": "周琳",
+      "status": "部分失败"
+    },
+    {
+      "id": "PUB202608220016",
+      "name": "闭馆安全提示",
+      "screens": "全馆 4屏",
+      "schedule": "每日 16:45",
+      "creator": "系统任务",
+      "status": "定时任务"
+    }
+  ],
+  "mapNodes": [
+    {
+      "id": "CAM-F1-001",
+      "name": "南门入口全景",
+      "type": "摄像头",
+      "floor": "F1",
+      "x": 12,
+      "y": 79,
+      "status": "正常"
+    },
+    {
+      "id": "AC-F1-002",
+      "name": "南门访客通道",
+      "type": "门禁",
+      "floor": "F1",
+      "x": 25,
+      "y": 80,
+      "status": "正常"
+    },
+    {
+      "id": "DS-F1-001",
+      "name": "序厅主屏",
+      "type": "发布屏",
+      "floor": "F1",
+      "x": 32,
+      "y": 68,
+      "status": "正常"
+    },
+    {
+      "id": "CAM-F1-004",
+      "name": "体育发展展区西",
+      "type": "摄像头",
+      "floor": "F1",
+      "x": 67,
+      "y": 28,
+      "status": "告警"
+    },
+    {
+      "id": "AP-F1-008",
+      "name": "互动体验区AP",
+      "type": "无线AP",
+      "floor": "F1",
+      "x": 72,
+      "y": 72,
+      "status": "正常"
+    },
+    {
+      "id": "CAM-F2-003",
+      "name": "冠军荣誉厅全景",
+      "type": "摄像头",
+      "floor": "F2",
+      "x": 35,
+      "y": 28,
+      "status": "正常"
+    },
+    {
+      "id": "DS-F2-003",
+      "name": "临展区发布屏",
+      "type": "发布屏",
+      "floor": "F2",
+      "x": 73,
+      "y": 67,
+      "status": "告警"
+    },
+    {
+      "id": "AC-F2-001",
+      "name": "二层办公区门禁",
+      "type": "门禁",
+      "floor": "F2",
+      "x": 85,
+      "y": 24,
+      "status": "正常"
+    }
+  ],
+  "sensors": [
+    {
+      "id": "TH-B1-001",
+      "name": "第一机房温湿度",
+      "room": "第一机房",
+      "type": "温湿度",
+      "value": "28.6℃ / 52%RH",
+      "status": "预警",
+      "update": "10:46:20"
+    },
+    {
+      "id": "WL-B1-001",
+      "name": "第一机房漏水检测",
+      "room": "第一机房",
+      "type": "漏水",
+      "value": "干燥",
+      "status": "正常",
+      "update": "10:46:18"
+    },
+    {
+      "id": "SM-B1-001",
+      "name": "第一机房烟雾探测",
+      "room": "第一机房",
+      "type": "烟雾",
+      "value": "0.03%obs/m",
+      "status": "正常",
+      "update": "10:46:16"
+    },
+    {
+      "id": "TH-B1-002",
+      "name": "核心机房温湿度",
+      "room": "核心机房",
+      "type": "温湿度",
+      "value": "23.8℃ / 48%RH",
+      "status": "正常",
+      "update": "10:46:20"
+    },
+    {
+      "id": "WL-B1-002",
+      "name": "核心机房漏水检测",
+      "room": "核心机房",
+      "type": "漏水",
+      "value": "干燥",
+      "status": "正常",
+      "update": "10:46:18"
+    },
+    {
+      "id": "SM-B1-002",
+      "name": "核心机房烟雾探测",
+      "room": "核心机房",
+      "type": "烟雾",
+      "value": "0.02%obs/m",
+      "status": "正常",
+      "update": "10:46:17"
+    }
+  ],
+  "upsDevices": [
+    {
+      "id": "UPS-B1-001",
+      "name": "核心机房UPS-A",
+      "room": "核心机房",
+      "supply": "市电供电",
+      "backup": "46分钟",
+      "load": 38,
+      "power": "12.6 kW",
+      "battery": "正常 · 96%",
+      "status": "正常"
+    },
+    {
+      "id": "UPS-B1-002",
+      "name": "第一机房UPS-B",
+      "room": "第一机房",
+      "supply": "市电供电",
+      "backup": "32分钟",
+      "load": 52,
+      "power": "8.4 kW",
+      "battery": "正常 · 91%",
+      "status": "正常"
+    }
+  ],
+  "audioZones": [
+    {
+      "id": "BZ-01",
+      "name": "序厅及公共区域",
+      "devices": 12,
+      "volume": 36,
+      "current": "轻音乐·开馆迎宾",
+      "status": "播放中",
+      "next": "11:30 整点提示"
+    },
+    {
+      "id": "BZ-02",
+      "name": "一层展区",
+      "devices": 18,
+      "volume": 28,
+      "current": "体育记忆主题音乐",
+      "status": "播放中",
+      "next": "12:00 午间提示"
+    },
+    {
+      "id": "BZ-03",
+      "name": "二层展区",
+      "devices": 16,
+      "volume": 24,
+      "current": "冠军之路主题音乐",
+      "status": "播放中",
+      "next": "12:00 午间提示"
+    },
+    {
+      "id": "BZ-04",
+      "name": "办公及后勤区",
+      "devices": 8,
+      "volume": 20,
+      "current": "无",
+      "status": "已暂停",
+      "next": "16:45 闭馆提示"
+    }
+  ],
+  "accessPoints": [
+    {
+      "id": "AP-F1-001",
+      "name": "序厅AP-01",
+      "location": "一层·序厅",
+      "clients": 28,
+      "traffic": "126 Mbps",
+      "channel": "36",
+      "status": "在线",
+      "uptime": "32天"
+    },
+    {
+      "id": "AP-F1-008",
+      "name": "互动区AP-08",
+      "location": "一层·互动体验区",
+      "clients": 44,
+      "traffic": "286 Mbps",
+      "channel": "44",
+      "status": "高负载",
+      "uptime": "18天"
+    },
+    {
+      "id": "AP-F2-003",
+      "name": "冠军厅AP-03",
+      "location": "二层·冠军荣誉厅",
+      "clients": 21,
+      "traffic": "98 Mbps",
+      "channel": "149",
+      "status": "在线",
+      "uptime": "32天"
+    },
+    {
+      "id": "AP-F2-006",
+      "name": "临展区AP-06",
+      "location": "二层·临时展区",
+      "clients": 17,
+      "traffic": "72 Mbps",
+      "channel": "157",
+      "status": "在线",
+      "uptime": "12天"
+    },
+    {
+      "id": "AP-B1-001",
+      "name": "办公区AP-01",
+      "location": "地下一层·办公区",
+      "clients": 12,
+      "traffic": "42 Mbps",
+      "channel": "40",
+      "status": "在线",
+      "uptime": "32天"
+    }
+  ],
+  "systemInterfaces": [
+    {
+      "id": "IF-VIDEO",
+      "name": "视频监控系统",
+      "vendor": "待客户确认",
+      "method": "GB/T 28181 / SDK",
+      "adapter": "MockVideoAdapter",
+      "devices": "10路模拟摄像头",
+      "status": "模拟运行",
+      "sync": "实时"
+    },
+    {
+      "id": "IF-ACCESS",
+      "name": "人员通行系统",
+      "vendor": "待客户确认",
+      "method": "SDK / REST API",
+      "adapter": "MockAccessAdapter",
+      "devices": "6个模拟门禁",
+      "status": "模拟运行",
+      "sync": "实时"
+    },
+    {
+      "id": "IF-PUBLISH",
+      "name": "信息发布系统",
+      "vendor": "待客户确认",
+      "method": "SDK",
+      "adapter": "MockPublishAdapter",
+      "devices": "4块模拟屏幕",
+      "status": "模拟运行",
+      "sync": "30秒"
+    },
+    {
+      "id": "IF-AUDIO",
+      "name": "背景音乐系统",
+      "vendor": "待客户确认",
+      "method": "SDK",
+      "adapter": "MockAudioAdapter",
+      "devices": "4个模拟分区",
+      "status": "模拟运行",
+      "sync": "30秒"
+    },
+    {
+      "id": "IF-WLAN",
+      "name": "无线网络系统",
+      "vendor": "待客户确认",
+      "method": "SNMP / API",
+      "adapter": "MockNetworkAdapter",
+      "devices": "62个模拟AP",
+      "status": "模拟运行",
+      "sync": "60秒"
+    },
+    {
+      "id": "IF-ENV",
+      "name": "机房动环系统",
+      "vendor": "待客户确认",
+      "method": "SDK / Modbus",
+      "adapter": "MockEnvironmentAdapter",
+      "devices": "6个模拟传感器",
+      "status": "模拟运行",
+      "sync": "10秒"
+    },
+    {
+      "id": "IF-UPS",
+      "name": "UPS电源系统",
+      "vendor": "待客户确认",
+      "method": "SNMP / 私有协议",
+      "adapter": "MockUpsAdapter",
+      "devices": "2台模拟UPS",
+      "status": "模拟运行",
+      "sync": "10秒"
+    }
+  ],
+  "demoScenarios": [
+    {
+      "id": "camera-offline",
+      "title": "摄像头离线处置",
+      "description": "摄像头离线→告警弹窗→查看详情→生成工单→处理关闭",
+      "module": "视频 + 告警 + 工单",
+      "duration": "约2分钟",
+      "tone": "red"
+    },
+    {
+      "id": "temperature-high",
+      "title": "机房温度升高",
+      "description": "温度曲线上升→超过阈值→告警→派发空调检查工单",
+      "module": "动环 + 告警 + 工单",
+      "duration": "约2分钟",
+      "tone": "orange"
+    },
+    {
+      "id": "visitor-entry",
+      "title": "访客预约入场",
+      "description": "提交预约→审批→生成二维码→门禁核验→形成通行记录",
+      "module": "访客 + 门禁",
+      "duration": "约3分钟",
+      "tone": "cyan"
+    },
+    {
+      "id": "screen-publish",
+      "title": "信息内容发布",
+      "description": "选择屏幕→选择节目单→预览→模拟发布→形成发布记录",
+      "module": "信息发布",
+      "duration": "约2分钟",
+      "tone": "purple"
+    },
+    {
+      "id": "ups-battery",
+      "title": "UPS电池供电",
+      "description": "市电异常→UPS切换→备电倒计时→市电恢复→关闭告警",
+      "module": "UPS + 告警",
+      "duration": "约2分钟",
+      "tone": "green"
+    }
+  ]
+}
