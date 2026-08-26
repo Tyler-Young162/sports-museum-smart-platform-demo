@@ -1,0 +1,34 @@
+{
+  "hero": {
+    "eyebrow": "SPORTS MUSEUM · SMART VISIT",
+    "title": "在体育记忆中，遇见不止一种热爱",
+    "description": "探索体育文明、冠军故事与互动科技，开启一段可感知、可参与、可分享的博物馆旅程。",
+    "openHours": "09:00–17:00",
+    "lastEntry": "16:30停止入馆",
+    "notice": "今日正常开放 · 建议参观时长约90分钟"
+  },
+  "stats": [
+    { "label": "今日在馆", "value": "386", "unit": "人" },
+    { "label": "舒适度", "value": "舒适", "unit": "客流平稳" },
+    { "label": "开放展区", "value": "8", "unit": "个" },
+    { "label": "今日活动", "value": "4", "unit": "场" }
+  ],
+  "exhibitions": [
+    { "id": "EX-01", "title": "体育文明的起源", "floor": "一层", "area": "体育起源展区", "duration": "建议20分钟", "status": "开放中", "tone": "cyan", "summary": "从古代竞技、礼仪与生活方式出发，理解体育如何成为人类共同语言。" },
+    { "id": "EX-02", "title": "城市体育记忆", "floor": "一层", "area": "体育发展展区", "duration": "建议25分钟", "status": "开放中", "tone": "orange", "summary": "沿着时间轴回望城市体育发展，发现赛事、场馆与普通人的共同记忆。" },
+    { "id": "EX-03", "title": "冠军之路", "floor": "二层", "area": "冠军荣誉厅", "duration": "建议20分钟", "status": "开放中", "tone": "purple", "summary": "通过训练手记、影像与荣誉档案，走近冠军背后的坚持、团队和选择。" },
+    { "id": "EX-04", "title": "一起动起来", "floor": "一层", "area": "互动体验区", "duration": "建议15分钟", "status": "排队8分钟", "tone": "green", "summary": "使用体感、反应力和运动数据互动装置，在参与中理解科学训练。" }
+  ],
+  "activities": [
+    { "time": "10:30", "title": "冠军故事公益讲解", "place": "二层·冠军荣誉厅", "availability": "余12位" },
+    { "time": "13:30", "title": "体育文物背后的故事", "place": "一层·体育发展展区", "availability": "可预约" },
+    { "time": "15:00", "title": "亲子运动科学实验室", "place": "一层·互动体验区", "availability": "即将满员" },
+    { "time": "16:00", "title": "闭馆前精选路线", "place": "一层·序厅集合", "availability": "余20位" }
+  ],
+  "services": [
+    { "id": "S-ROUTE", "title": "智能路线", "description": "按时间与兴趣生成参观路线", "action": "规划路线" },
+    { "id": "S-GUIDE", "title": "语音导览", "description": "扫码收听重点展项讲解", "action": "打开导览" },
+    { "id": "S-ACCESS", "title": "无障碍服务", "description": "电梯、轮椅与服务台位置", "action": "查看服务" },
+    { "id": "S-EVENT", "title": "活动预约", "description": "查看今日活动和剩余名额", "action": "立即预约" }
+  ]
+}

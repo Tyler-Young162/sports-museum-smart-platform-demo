@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import platform from '../../config/platform.json'
 import project from '../../config/project.json'
 import cameras from '../../public/config/cameras.json'
+import backend from '../../config/backend.json'
+import publicPortal from '../../config/public.json'
 
 describe('Demo 配置边界', () => {
   it('第一阶段保持 mock 模式且接口不冒充真实联调', () => {
@@ -45,5 +47,18 @@ describe('Demo 配置边界', () => {
       const ids = items.map((item) => item.id)
       expect(new Set(ids).size).toBe(ids.length)
     }
+  })
+
+  it('双入口都具备可配置内容', () => {
+    expect(publicPortal.exhibitions.length).toBeGreaterThan(0)
+    expect(backend.frontendChannels.some((item) => item.route === '/portal')).toBe(true)
+    expect(backend.frontendChannels.some((item) => item.route === '/')).toBe(true)
+  })
+
+  it('技术后台清单完整且保持模拟接入边界', () => {
+    expect(backend.deviceAssets.length).toBeGreaterThan(0)
+    expect(backend.externalApplications.length).toBeGreaterThan(0)
+    expect(backend.apiEndpoints.length).toBeGreaterThan(0)
+    for (const item of backend.hardwareGateways) expect(item.adapter).toMatch(/^Mock/)
   })
 })

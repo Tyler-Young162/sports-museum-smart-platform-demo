@@ -2,7 +2,6 @@ import {
   CalendarDays,
   Camera as CameraIcon,
   ChevronDown,
-  ChevronRight,
   CircleAlert,
   Clock3,
   Download,
@@ -24,7 +23,7 @@ import {
   SlidersHorizontal,
   Volume2,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { loadCameraConfig } from '../services/configService'
 import type { Camera, CameraConfig, CameraStatus } from '../types/video'
 
@@ -47,16 +46,20 @@ export function VideoPage() {
   const [config, setConfig] = useState<CameraConfig | null>(null)
   const [loadError, setLoadError] = useState('')
   const [selectedId, setSelectedId] = useState('CAM-F1-001')
-  const [expandedFloors, setExpandedFloors] = useState<string[]>(['F1', 'F2'])
   const [query, setQuery] = useState('')
   const [mode, setMode] = useState<'live' | 'replay'>('live')
-  const [layout, setLayout] = useState<'single' | 'quad'>('single')
+  const [layout, setLayout] = useState<'single' | 'quad'>('quad')
   const [playing, setPlaying] = useState(false)
   const [selectedSegment, setSelectedSegment] = useState(0)
   const [statusFilter, setStatusFilter] = useState<'all' | CameraStatus>('all')
   const [refreshing, setRefreshing] = useState(false)
   const [feedback, setFeedback] = useState('')
   const [replayDate, setReplayDate] = useState('2026-08-24')
+  const catalogRef = useRef<HTMLDivElement | null>(null)
+  const floorRefs = useRef<Record<string, HTMLElement | null>>({})
+  const cameraRefs = useRef<Record<string, HTMLElement | null>>({})
+  const programmaticScrollRef = useRef(false)
+  const scrollReleaseTimerRef = useRef<number | null>(null)
 
   async function refreshConfig(notify = true) {
     setRefreshing(true)
@@ -84,6 +87,10 @@ export function VideoPage() {
     return () => window.clearTimeout(timer)
   }, [feedback])
 
+  useEffect(() => () => {
+    if (scrollReleaseTimerRef.current) window.clearTimeout(scrollReleaseTimerRef.current)
+  }, [])
+
   const selectedCamera = config?.cameras.find((camera) => camera.id === selectedId) ?? null
   const filteredCameras = useMemo(() => {
     if (!config) return []
@@ -95,13 +102,51 @@ export function VideoPage() {
     })
   }, [config, query, statusFilter])
 
-  function toggleFloor(floorId: string) {
-    setExpandedFloors((items) => items.includes(floorId) ? items.filter((item) => item !== floorId) : [...items, floorId])
-  }
+  useEffect(() => {
+    if (filteredCameras.length > 0 && !filteredCameras.some((camera) => camera.id === selectedId)) {
+      setSelectedId(filteredCameras[0].id)
+    }
+  }, [filteredCameras, selectedId])
 
-  function selectCamera(camera: Camera) {
+  function selectCamera(camera: Camera, shouldScroll = false) {
     setSelectedId(camera.id)
     setPlaying(false)
+    if (shouldScroll) {
+      programmaticScrollRef.current = true
+      if (scrollReleaseTimerRef.current) window.clearTimeout(scrollReleaseTimerRef.current)
+      cameraRefs.current[camera.id]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      scrollReleaseTimerRef.current = window.setTimeout(() => { programmaticScrollRef.current = false }, 1200)
+    }
+  }
+
+  function scrollToFloor(floorId: string) {
+    const firstCamera = filteredCameras.find((camera) => camera.floorId === floorId)
+    if (firstCamera) setSelectedId(firstCamera.id)
+    programmaticScrollRef.current = true
+    if (scrollReleaseTimerRef.current) window.clearTimeout(scrollReleaseTimerRef.current)
+    floorRefs.current[floorId]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    scrollReleaseTimerRef.current = window.setTimeout(() => { programmaticScrollRef.current = false }, 1200)
+  }
+
+  function syncDirectoryWithScroll() {
+    if (programmaticScrollRef.current) return
+    const catalog = catalogRef.current
+    if (!catalog) return
+    const catalogRect = catalog.getBoundingClientRect()
+    const selectedElement = cameraRefs.current[selectedId]
+    if (selectedElement) {
+      const selectedRect = selectedElement.getBoundingClientRect()
+      if (selectedRect.bottom > catalogRect.top + 54 && selectedRect.top < catalogRect.bottom) return
+    }
+    const visibleCamera = filteredCameras
+      .map((camera) => ({ camera, element: cameraRefs.current[camera.id] }))
+      .filter((item): item is { camera: Camera; element: HTMLElement } => Boolean(item.element))
+      .filter(({ element }) => {
+        const rect = element.getBoundingClientRect()
+        return rect.bottom > catalogRect.top + 54 && rect.top < catalogRect.bottom
+      })
+      .sort((a, b) => Math.abs(a.element.getBoundingClientRect().top - catalogRect.top - 72) - Math.abs(b.element.getBoundingClientRect().top - catalogRect.top - 72))[0]
+    if (visibleCamera && visibleCamera.camera.id !== selectedId) setSelectedId(visibleCamera.camera.id)
   }
 
   if (loadError) {
@@ -116,19 +161,6 @@ export function VideoPage() {
 
   return (
     <div className="page video-page">
-      <section className="page-heading video-heading">
-        <div>
-          <p className="eyebrow">VIDEO SURVEILLANCE</p>
-          <h1>视频监控管理</h1>
-          <p>按楼层管理馆区摄像头，查看模拟实况与录像回放</p>
-        </div>
-        <div className="video-summary">
-          <span><i className="online" />在线 <strong>{onlineCount}</strong></span>
-          <span><i className="fault" />异常 <strong>{config.cameras.length - onlineCount}</strong></span>
-          <span><CameraIcon size={15} />总数 <strong>{config.cameras.length}</strong></span>
-        </div>
-      </section>
-
       <section className="video-workspace">
         <aside className="camera-tree panel">
           <div className="camera-tree-head">
@@ -145,23 +177,23 @@ export function VideoPage() {
           <div className="floor-tree">
             {config.floors.map((floor) => {
               const cameras = filteredCameras.filter((camera) => camera.floorId === floor.id)
-              const expanded = expandedFloors.includes(floor.id)
+              const activeFloor = selectedCamera.floorId === floor.id
               return (
                 <div className="floor-group" key={floor.id}>
-                  <button className="floor-row" onClick={() => toggleFloor(floor.id)}>
-                    {expanded ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                  <button className={activeFloor ? 'floor-row active' : 'floor-row'} onClick={() => scrollToFloor(floor.id)}>
+                    <ChevronDown size={15} />
                     <strong>{floor.name}</strong><span>{cameras.length} 路</span>
                   </button>
-                  {expanded && <div className="camera-items">
+                  <div className="camera-items">
                     {cameras.map((camera) => (
-                      <button key={camera.id} className={camera.id === selectedId ? 'camera-item active' : 'camera-item'} onClick={() => selectCamera(camera)}>
+                      <button key={camera.id} className={camera.id === selectedId ? 'camera-item active' : 'camera-item'} onClick={() => selectCamera(camera, true)}>
                         <span className={`camera-status ${camera.status}`}><CameraIcon size={14} /></span>
                         <span className="camera-label"><strong>{camera.name}</strong><small>{camera.id} · {camera.area}</small></span>
                         <i className={camera.status} title={statusText[camera.status]} />
                       </button>
                     ))}
                     {cameras.length === 0 && <p className="tree-empty">没有匹配的摄像头</p>}
-                  </div>}
+                  </div>
                 </div>
               )
             })}
@@ -170,22 +202,72 @@ export function VideoPage() {
         </aside>
 
         <div className="video-main">
-          <article className="player-card panel">
+          <article className="selected-camera-strip panel">
+            <div className="selected-camera-identity">
+              <span className={`camera-status ${selectedCamera.status}`}><CameraIcon size={15} /></span>
+              <div><p className="panel-kicker">当前选中</p><h2>{selectedCamera.name}</h2></div>
+              <span className={`device-state ${selectedCamera.status}`}><i />{statusText[selectedCamera.status]}</span>
+            </div>
+            <div className="selected-camera-facts">
+              <span><small>摄像头ID</small><strong>{selectedCamera.id}</strong></span>
+              <span><small>安装位置</small><strong>{selectedCamera.position}</strong></span>
+              <span><small>地址 / 通道</small><strong>{selectedCamera.ip} · {selectedCamera.channel}</strong></span>
+              <span><small>规格</small><strong>{selectedCamera.resolution}</strong></span>
+            </div>
+            <div className="video-summary compact" aria-label="摄像头状态统计">
+              <span><i className="online" />在线 <strong>{onlineCount}</strong></span>
+              <span><i className="fault" />异常 <strong>{config.cameras.length - onlineCount}</strong></span>
+              <span><CameraIcon size={13} />总数 <strong>{config.cameras.length}</strong></span>
+            </div>
+            <div className="selected-camera-actions">
+              <button title="地图定位" onClick={() => setFeedback(`已定位：${selectedCamera.position}`)}><MapPin size={15} /></button>
+              <button title="设备档案" onClick={() => setFeedback(`${selectedCamera.id} 设备档案已加载`)}><Info size={15} /></button>
+              <button title="模拟重连" onClick={() => setFeedback(`正在重新连接 ${selectedCamera.name}`)}><RotateCcw size={15} /></button>
+            </div>
+          </article>
+
+          <article className="player-card camera-catalog-card panel">
             <div className="player-toolbar">
               <div className="mode-tabs">
                 <button className={mode === 'live' ? 'active' : ''} onClick={() => { setMode('live'); setPlaying(false) }}>实时预览</button>
                 <button className={mode === 'replay' ? 'active' : ''} onClick={() => { setMode('replay'); setPlaying(false) }}>录像回放</button>
               </div>
+              <span className="catalog-hint">完整摄像头列表 · 可上下滚动，左侧目录自动跟随</span>
               <div className="player-tools">
-                <button className={layout === 'single' ? 'active' : ''} onClick={() => setLayout('single')} title="单画面"><Maximize size={15} /></button>
-                <button className={layout === 'quad' ? 'active' : ''} onClick={() => setLayout('quad')} title="四画面"><Grid2X2 size={15} /></button>
+                <button className={layout === 'single' ? 'active' : ''} onClick={() => setLayout('single')} title="单列列表"><Maximize size={15} /></button>
+                <button className={layout === 'quad' ? 'active' : ''} onClick={() => setLayout('quad')} title="田字格列表"><Grid2X2 size={15} /></button>
                 <button title="画面参数"><SlidersHorizontal size={15} /></button>
               </div>
             </div>
 
-            <div className={`monitor-grid ${layout}`}>
-              <CameraViewport camera={selectedCamera} mode={mode} playing={playing} primary onReconnect={() => setFeedback(`正在重新连接 ${selectedCamera.name}`)} />
-              {layout === 'quad' && config.cameras.filter((camera) => camera.id !== selectedCamera.id).slice(0, 3).map((camera) => <CameraViewport key={camera.id} camera={camera} mode={mode} playing={false} onReconnect={() => setFeedback(`正在重新连接 ${camera.name}`)} />)}
+            <div ref={catalogRef} className="camera-catalog-scroll" onScroll={syncDirectoryWithScroll}>
+              {config.floors.map((floor) => {
+                const floorCameras = filteredCameras.filter((camera) => camera.floorId === floor.id)
+                if (floorCameras.length === 0) return null
+                return <section className="camera-floor-section" key={floor.id} ref={(element) => { floorRefs.current[floor.id] = element }}>
+                  <div className="camera-section-title">
+                    <div><span>{floor.id}</span><h2>{floor.name}摄像头</h2></div>
+                    <p>{floor.areas.join(' · ')}</p>
+                    <strong>{floorCameras.length} 路</strong>
+                  </div>
+                  <div className={`camera-catalog-grid ${layout}`}>
+                    {floorCameras.map((camera) => <article
+                      key={camera.id}
+                      ref={(element) => { cameraRefs.current[camera.id] = element }}
+                      className={camera.id === selectedId ? 'camera-catalog-item active' : 'camera-catalog-item'}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`选择摄像头 ${camera.name}`}
+                      onClick={() => selectCamera(camera)}
+                      onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') selectCamera(camera) }}
+                    >
+                      <CameraViewport camera={camera} mode={mode} playing={camera.id === selectedId && playing} primary={camera.id === selectedId} onReconnect={() => setFeedback(`正在重新连接 ${camera.name}`)} />
+                      <div className="camera-tile-meta"><span>{camera.area}</span><strong>{camera.model}</strong><small>{camera.ip}</small></div>
+                    </article>)}
+                  </div>
+                </section>
+              })}
+              {filteredCameras.length === 0 && <div className="catalog-empty"><Search size={22} /><strong>没有匹配的摄像头</strong><span>请调整搜索关键词或状态筛选</span></div>}
             </div>
 
             <div className="player-controls">
@@ -221,18 +303,6 @@ export function VideoPage() {
             </div>
           </article>}
 
-          <article className="camera-detail panel">
-            <div className="detail-title"><div><p className="panel-kicker">当前设备</p><h2>{selectedCamera.name}</h2></div><span className={`device-state ${selectedCamera.status}`}><i />{statusText[selectedCamera.status]}</span></div>
-            <div className="camera-meta">
-              <div><span>摄像头ID</span><strong>{selectedCamera.id}</strong></div>
-              <div><span>安装位置</span><strong>{selectedCamera.position}</strong></div>
-              <div><span>设备型号</span><strong>{selectedCamera.model}</strong></div>
-              <div><span>视频规格</span><strong>{selectedCamera.resolution} · {selectedCamera.channel}</strong></div>
-              <div><span>设备地址</span><strong>{selectedCamera.ip}</strong></div>
-              <div><span>最后在线</span><strong>{selectedCamera.lastOnline}</strong></div>
-            </div>
-            <div className="detail-actions"><button onClick={() => setFeedback(`已定位：${selectedCamera.position}`)}><MapPin size={15} />地图定位</button><button onClick={() => setFeedback(`${selectedCamera.id} 设备档案已加载`)}><Info size={15} />设备档案</button><button onClick={() => setFeedback(`正在重新连接 ${selectedCamera.name}`)}><RotateCcw size={15} />模拟重连</button></div>
-          </article>
         </div>
       </section>
       {feedback && <div className="demo-toast"><CircleAlert size={15} /><span>{feedback}</span></div>}

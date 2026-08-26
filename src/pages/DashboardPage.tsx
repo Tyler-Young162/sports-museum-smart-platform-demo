@@ -8,12 +8,8 @@ const statusIcons = { video: Camera, access: DoorOpen, network: RadioTower, envi
 export function DashboardPage() {
   return (
     <div className="page dashboard-page">
-      <section className="page-heading">
-        <div>
-          <p className="eyebrow">OPERATION OVERVIEW</p>
-          <h1>综合运行态势</h1>
-          <p>{dashboardConfig.dateLabel}　{dashboardConfig.openStatus}</p>
-        </div>
+      <section className="page-command-row dashboard-command-row">
+        <span className="dashboard-date">{dashboardConfig.dateLabel}　{dashboardConfig.openStatus}</span>
         <div className="heading-actions">
           <span className="live-indicator"><i />数据实时更新</span>
           <Link className="primary-button" to="/demo">进入演示控制台 <ArrowUpRight size={16} /></Link>

@@ -2,11 +2,15 @@
 
 第一阶段为配置驱动的本地 Demo，全部使用模拟数据，不连接真实摄像头、门禁、信息发布屏、动环、UPS、背景音乐或无线网络设备。
 
-![演示控制台](output/playwright/final-responsive-demo.png)
+![公众展示入口](output/playwright/public-portal.png)
+
+![管理与技术后台](output/playwright/technical-backend.png)
 
 ## 当前状态
 
-- 12 个业务页面均已提供完整模拟数据和操作逻辑。
+- 14 个页面均已提供完整模拟数据和操作逻辑，其中包括公众展示入口和管理与技术后台。
+- 提供 `/portal` 公众展示入口和管理端右上角双入口切换。
+- 提供 `/backend` 管理与技术后台，支持设备、协议、外部应用和展示端配置管理。
 - 支持告警转工单、访客审批与二维码、模拟发布、地图联动及固定演示场景。
 - 客户资料到达后，优先替换配置、点位和素材，不改动已确认的页面框架。
 - 新同事请先阅读 [HANDOFF.md](HANDOFF.md)。
@@ -30,6 +34,8 @@ npm run check
 
 - 项目名称和主题：`config/project.json`
 - 除视频外的主要模拟数据：`config/platform.json`
+- 公众展示内容：`config/public.json`
+- 技术后台与接入配置：`config/backend.json`
 - 摄像头、楼层和录像片段：`public/config/cameras.json`
 
 修改配置后重新启动开发服务；若浏览器保留了之前的操作状态，在“演示控制台”执行一次重置。

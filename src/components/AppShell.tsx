@@ -13,6 +13,7 @@ import {
   Music2,
   RadioTower,
   Search,
+  ServerCog,
   Settings2,
   ShieldCheck,
   Video,
@@ -22,6 +23,7 @@ import { useEffect } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { moduleConfig, projectConfig } from '../config/project'
 import { useDemo } from '../context/DemoContext'
+import { ModeSwitch } from './ModeSwitch'
 
 const icons = {
   dashboard: LayoutDashboard,
@@ -35,6 +37,7 @@ const icons = {
   audio: Music2,
   network: RadioTower,
   interfaces: Blocks,
+  backend: ServerCog,
   demo: Settings2,
 }
 
@@ -81,10 +84,12 @@ export function AppShell() {
 
       <main className="main-stage">
         <header className="topbar">
-          <div className="breadcrumb">
-            <span>智慧场馆</span><ChevronRight size={14} /><strong>{currentModule.label}</strong>
+          <div className="module-heading">
+            <p>{currentModule.eyebrow}</p>
+            <div><h1>{currentModule.heading}</h1><span>{currentModule.description}</span></div>
           </div>
           <div className="topbar-actions">
+            <ModeSwitch mode="admin" />
             <label className="global-search">
               <Search size={17} />
               <input aria-label="全局搜索" placeholder="搜索设备、告警或工单" />

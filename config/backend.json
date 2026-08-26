@@ -1,0 +1,49 @@
+{
+  "deviceAssets": [
+    { "id": "CAM-F1-001", "name": "南门入口全景摄像机", "category": "视频监控", "vendor": "示例厂商A", "model": "IPC-4K-DOME", "location": "一层·南门入口", "ip": "192.168.10.101", "protocol": "GB/T 28181", "status": "在线", "firmware": "V5.7.12", "lastSeen": "刚刚" },
+    { "id": "CAM-F1-004", "name": "体育发展展区西摄像机", "category": "视频监控", "vendor": "示例厂商A", "model": "IPC-2K-BULLET", "location": "一层·体育发展展区", "ip": "192.168.10.104", "protocol": "GB/T 28181", "status": "故障", "firmware": "V5.7.10", "lastSeen": "18分钟前" },
+    { "id": "AC-F1-002", "name": "南门访客通道门禁", "category": "人员通行", "vendor": "示例厂商B", "model": "AC-FACE-08", "location": "一层·南门", "ip": "192.168.20.22", "protocol": "厂商SDK", "status": "在线", "firmware": "V3.2.8", "lastSeen": "5秒前" },
+    { "id": "DS-F1-001", "name": "序厅信息发布主屏", "category": "信息发布", "vendor": "示例厂商C", "model": "PLAYER-X86", "location": "一层·序厅", "ip": "192.168.30.11", "protocol": "REST API", "status": "在线", "firmware": "V2.6.1", "lastSeen": "12秒前" },
+    { "id": "DS-F2-003", "name": "临展区发布屏", "category": "信息发布", "vendor": "示例厂商C", "model": "PLAYER-X86", "location": "二层·临时展区", "ip": "192.168.30.23", "protocol": "REST API", "status": "离线", "firmware": "V2.5.9", "lastSeen": "52分钟前" },
+    { "id": "TH-B1-001", "name": "第一机房温湿度传感器", "category": "机房动环", "vendor": "示例厂商D", "model": "TH-RS485", "location": "地下一层·第一机房", "ip": "COM3/01", "protocol": "Modbus RTU", "status": "预警", "firmware": "V1.4", "lastSeen": "3秒前" },
+    { "id": "UPS-B1-001", "name": "核心机房UPS-A", "category": "UPS电源", "vendor": "示例厂商E", "model": "UPS-40KVA", "location": "地下一层·核心机房", "ip": "192.168.40.10", "protocol": "SNMP v2c", "status": "在线", "firmware": "V4.3.2", "lastSeen": "8秒前" },
+    { "id": "AP-F1-008", "name": "互动体验区AP-08", "category": "无线网络", "vendor": "示例厂商F", "model": "AP-WIFI6", "location": "一层·互动体验区", "ip": "192.168.50.108", "protocol": "SNMP v3", "status": "高负载", "firmware": "V10.2.6", "lastSeen": "刚刚" },
+    { "id": "BZ-01", "name": "序厅背景音乐分区", "category": "背景音乐", "vendor": "示例厂商G", "model": "AUDIO-ZONE", "location": "一层·序厅及公共区", "ip": "192.168.60.21", "protocol": "厂商SDK", "status": "在线", "firmware": "V2.1.0", "lastSeen": "15秒前" },
+    { "id": "GW-B1-001", "name": "动环协议采集网关", "category": "边缘网关", "vendor": "示例厂商D", "model": "EDGE-IO-16", "location": "地下一层·核心机房", "ip": "192.168.40.5", "protocol": "MQTT", "status": "在线", "firmware": "V3.0.5", "lastSeen": "2秒前" }
+  ],
+  "hardwareGateways": [
+    { "id": "HW-VIDEO", "name": "视频监控接入", "system": "视频监控", "vendor": "待客户确认", "protocol": "GB/T 28181 / SDK", "endpoint": "sip:192.168.100.10:5060", "authMode": "平台编码 + 密码", "polling": "事件推送", "adapter": "MockVideoAdapter", "status": "模拟运行", "lastTest": "2026-08-25 10:42", "capabilities": ["设备目录", "实况取流", "录像查询", "告警订阅"] },
+    { "id": "HW-ACCESS", "name": "人员门禁接入", "system": "人员通行", "vendor": "待客户确认", "protocol": "SDK / REST API", "endpoint": "http://mock-access.local/api", "authMode": "AppKey", "polling": "实时回调", "adapter": "MockAccessAdapter", "status": "模拟运行", "lastTest": "2026-08-25 10:38", "capabilities": ["人员同步", "权限下发", "通行记录", "设备状态"] },
+    { "id": "HW-PUBLISH", "name": "信息发布接入", "system": "信息发布", "vendor": "待客户确认", "protocol": "厂商SDK", "endpoint": "http://mock-publish.local/sdk", "authMode": "Token", "polling": "30秒", "adapter": "MockPublishAdapter", "status": "模拟运行", "lastTest": "2026-08-25 10:36", "capabilities": ["终端管理", "素材上传", "节目发布", "任务状态"] },
+    { "id": "HW-ENV", "name": "机房动环接入", "system": "机房动环", "vendor": "待客户确认", "protocol": "Modbus TCP / SDK", "endpoint": "tcp://192.168.40.5:502", "authMode": "内网白名单", "polling": "10秒", "adapter": "MockEnvironmentAdapter", "status": "模拟运行", "lastTest": "2026-08-25 10:41", "capabilities": ["实时点位", "阈值", "历史数据", "设备告警"] },
+    { "id": "HW-UPS", "name": "UPS电源接入", "system": "UPS电源", "vendor": "待客户确认", "protocol": "SNMP / Modbus", "endpoint": "udp://192.168.40.10:161", "authMode": "Community / 用户认证", "polling": "10秒", "adapter": "MockUpsAdapter", "status": "待配置", "lastTest": "尚未测试", "capabilities": ["供电状态", "负载率", "电池状态", "备电时间"] },
+    { "id": "HW-WLAN", "name": "无线网管接入", "system": "无线网络", "vendor": "待客户确认", "protocol": "SNMP v3 / REST API", "endpoint": "https://mock-wlan.local/api", "authMode": "用户名 + 认证协议", "polling": "60秒", "adapter": "MockNetworkAdapter", "status": "模拟运行", "lastTest": "2026-08-25 10:32", "capabilities": ["AP清单", "终端数", "流量", "网络告警"] }
+  ],
+  "externalApplications": [
+    { "id": "APP-MOBILE", "name": "物业移动端", "type": "事件上报应用", "owner": "园区物业", "baseUrl": "https://mock-property.local", "callback": "/callbacks/events", "authMode": "OAuth 2.0", "scopes": ["event.write", "alarm.read", "workorder.read"], "status": "已启用", "lastSync": "2分钟前" },
+    { "id": "APP-WECHAT", "name": "访客微信公众号", "type": "访客服务入口", "owner": "综合管理部", "baseUrl": "https://mock-visitor.local", "callback": "/callbacks/visitor", "authMode": "签名校验", "scopes": ["visitor.write", "qrcode.issue", "access.read"], "status": "待配置", "lastSync": "尚未同步" },
+    { "id": "APP-DATA", "name": "集团数据中台", "type": "数据交换平台", "owner": "信息技术部", "baseUrl": "https://mock-datahub.local", "callback": "/callbacks/sync", "authMode": "mTLS + Token", "scopes": ["device.read", "alarm.read", "metrics.read"], "status": "已启用", "lastSync": "8分钟前" },
+    { "id": "APP-BIGSCREEN", "name": "第三方领导驾驶舱", "type": "前端展示系统", "owner": "场馆管理部", "baseUrl": "https://mock-bigscreen.local", "callback": "/callbacks/status", "authMode": "API Key", "scopes": ["overview.read", "alarm.read", "traffic.read"], "status": "已停用", "lastSync": "3天前" }
+  ],
+  "frontendChannels": [
+    { "id": "CH-PUBLIC", "name": "公众展示入口", "kind": "Web门户", "route": "/portal", "theme": "明亮公共服务", "dataScope": "开放时间、展览、活动、公共客流", "status": "已发布", "version": "V0.1" },
+    { "id": "CH-MANAGER", "name": "管理与技术入口", "kind": "Web管理端", "route": "/", "theme": "深色运行监控", "dataScope": "设备、告警、工单、通行与配置", "status": "已发布", "version": "V0.2" },
+    { "id": "CH-LED", "name": "序厅数据大屏", "kind": "大屏页面", "route": "/display/lobby", "theme": "3840×2160", "dataScope": "场馆态势与参观导览", "status": "预留", "version": "待设计" },
+    { "id": "CH-MINI", "name": "访客小程序H5", "kind": "移动H5", "route": "/mobile/visitor", "theme": "移动端公共服务", "dataScope": "预约、二维码、参观服务", "status": "预留", "version": "待设计" }
+  ],
+  "apiEndpoints": [
+    { "id": "API-001", "name": "设备目录查询", "method": "GET", "path": "/open-api/v1/devices", "domain": "设备资产", "auth": "OAuth 2.0", "rateLimit": "600次/分钟", "status": "模拟可用", "consumers": 3 },
+    { "id": "API-002", "name": "设备实时状态", "method": "GET", "path": "/open-api/v1/devices/{id}/status", "domain": "设备资产", "auth": "OAuth 2.0", "rateLimit": "1200次/分钟", "status": "模拟可用", "consumers": 2 },
+    { "id": "API-003", "name": "告警分页查询", "method": "GET", "path": "/open-api/v1/alarms", "domain": "告警中心", "auth": "OAuth 2.0", "rateLimit": "600次/分钟", "status": "模拟可用", "consumers": 4 },
+    { "id": "API-004", "name": "事件告警上报", "method": "POST", "path": "/open-api/v1/events", "domain": "告警中心", "auth": "OAuth 2.0", "rateLimit": "120次/分钟", "status": "模拟可用", "consumers": 1 },
+    { "id": "API-005", "name": "工单状态回调", "method": "POST", "path": "/callbacks/v1/workorders", "domain": "工单管理", "auth": "HMAC签名", "rateLimit": "300次/分钟", "status": "草案", "consumers": 0 },
+    { "id": "API-006", "name": "公共态势摘要", "method": "GET", "path": "/open-api/v1/public/overview", "domain": "公众展示", "auth": "应用白名单", "rateLimit": "1200次/分钟", "status": "模拟可用", "consumers": 2 }
+  ],
+  "operationLogs": [
+    { "id": "LOG-250825-001", "time": "2026-08-25 10:42:16", "operator": "技术管理员", "module": "硬件接入", "action": "测试连接", "target": "HW-VIDEO", "result": "成功" },
+    { "id": "LOG-250825-002", "time": "2026-08-25 10:38:22", "operator": "系统管理员", "module": "设备资产", "action": "更新设备", "target": "CAM-F1-004", "result": "成功" },
+    { "id": "LOG-250825-003", "time": "2026-08-25 10:31:05", "operator": "接口管理员", "module": "外部系统", "action": "停用应用", "target": "APP-BIGSCREEN", "result": "成功" },
+    { "id": "LOG-250825-004", "time": "2026-08-25 09:56:44", "operator": "技术管理员", "module": "协议配置", "action": "保存参数", "target": "HW-ENV", "result": "成功" },
+    { "id": "LOG-250825-005", "time": "2026-08-25 09:42:12", "operator": "系统管理员", "module": "展示端配置", "action": "发布配置", "target": "CH-PUBLIC", "result": "成功" }
+  ]
+}

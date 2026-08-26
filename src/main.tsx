@@ -4,11 +4,12 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './styles.css'
 import { DemoProvider } from './context/DemoContext'
+import { BackendProvider } from './context/BackendContext'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <DemoProvider><App /></DemoProvider>
+      <BackendProvider><DemoProvider><App /></DemoProvider></BackendProvider>
     </BrowserRouter>
   </React.StrictMode>,
 )

@@ -81,8 +81,8 @@ import {
   type WorkOrderRecord,
 } from '../data/platformMock'
 
-function PageTitle({ eyebrow, title, description, action }: { eyebrow: string; title: string; description: string; action?: ReactNode }) {
-  return <section className="page-heading operations-heading"><div><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p>{description}</p></div>{action}</section>
+function PageTitle({ action }: { eyebrow: string; title: string; description: string; action?: ReactNode }) {
+  return action ? <section className="page-command-row">{action}</section> : null
 }
 
 function StatusChip({ value }: { value: string }) {
