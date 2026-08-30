@@ -52,6 +52,7 @@ export function VideoPage() {
   const [playing, setPlaying] = useState(false)
   const [selectedSegment, setSelectedSegment] = useState(0)
   const [statusFilter, setStatusFilter] = useState<'all' | CameraStatus>('all')
+  const [expandedFloorIds, setExpandedFloorIds] = useState<string[]>([])
   const [refreshing, setRefreshing] = useState(false)
   const [feedback, setFeedback] = useState('')
   const [replayDate, setReplayDate] = useState('2026-08-24')
@@ -87,6 +88,11 @@ export function VideoPage() {
     return () => window.clearTimeout(timer)
   }, [feedback])
 
+  useEffect(() => {
+    if (!config) return
+    setExpandedFloorIds((current) => current.length > 0 ? current : config.floors.map((floor) => floor.id))
+  }, [config])
+
   useEffect(() => () => {
     if (scrollReleaseTimerRef.current) window.clearTimeout(scrollReleaseTimerRef.current)
   }, [])
@@ -111,6 +117,7 @@ export function VideoPage() {
   function selectCamera(camera: Camera, shouldScroll = false) {
     setSelectedId(camera.id)
     setPlaying(false)
+    setExpandedFloorIds((current) => current.includes(camera.floorId) ? current : [...current, camera.floorId])
     if (shouldScroll) {
       programmaticScrollRef.current = true
       if (scrollReleaseTimerRef.current) window.clearTimeout(scrollReleaseTimerRef.current)
@@ -119,7 +126,12 @@ export function VideoPage() {
     }
   }
 
+  function toggleFloor(floorId: string) {
+    setExpandedFloorIds((current) => current.includes(floorId) ? current.filter((id) => id !== floorId) : [...current, floorId])
+  }
+
   function scrollToFloor(floorId: string) {
+    setExpandedFloorIds((current) => current.includes(floorId) ? current : [...current, floorId])
     const firstCamera = filteredCameras.find((camera) => camera.floorId === floorId)
     if (firstCamera) setSelectedId(firstCamera.id)
     programmaticScrollRef.current = true
@@ -178,13 +190,18 @@ export function VideoPage() {
             {config.floors.map((floor) => {
               const cameras = filteredCameras.filter((camera) => camera.floorId === floor.id)
               const activeFloor = selectedCamera.floorId === floor.id
+              const expanded = expandedFloorIds.includes(floor.id)
               return (
                 <div className="floor-group" key={floor.id}>
-                  <button className={activeFloor ? 'floor-row active' : 'floor-row'} onClick={() => scrollToFloor(floor.id)}>
-                    <ChevronDown size={15} />
+                  <button
+                    className={activeFloor ? 'floor-row active' : 'floor-row'}
+                    onClick={() => toggleFloor(floor.id)}
+                    onDoubleClick={() => scrollToFloor(floor.id)}
+                  >
+                    <ChevronDown size={15} style={{ transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .16s ease' }} />
                     <strong>{floor.name}</strong><span>{cameras.length} 路</span>
                   </button>
-                  <div className="camera-items">
+                  {expanded && <div className="camera-items">
                     {cameras.map((camera) => (
                       <button key={camera.id} className={camera.id === selectedId ? 'camera-item active' : 'camera-item'} onClick={() => selectCamera(camera, true)}>
                         <span className={`camera-status ${camera.status}`}><CameraIcon size={14} /></span>
@@ -193,7 +210,7 @@ export function VideoPage() {
                       </button>
                     ))}
                     {cameras.length === 0 && <p className="tree-empty">没有匹配的摄像头</p>}
-                  </div>
+                  </div>}
                 </div>
               )
             })}
