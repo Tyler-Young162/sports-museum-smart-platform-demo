@@ -1,12 +1,16 @@
-import { Activity, Boxes, Cable, Check, ChevronRight, CircleAlert, CircleCheck, ClipboardList, CloudCog, Code2, Cpu, Database, FileCode2, Filter, Gauge, KeyRound, Layers3, Link2, ListRestart, MonitorCog, Network, Pencil, Plus, RefreshCw, Search, ServerCog, Settings2, ShieldCheck, SlidersHorizontal, Trash2, Unplug, X } from 'lucide-react'
+import { Activity, Boxes, Cable, Check, ChevronRight, CircleAlert, CircleCheck, ClipboardList, CloudCog, Code2, Cpu, Database, FileCode2, Filter, Gauge, KeyRound, Layers3, Link2, ListRestart, MonitorCog, Network, Pencil, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Trash2, Unplug, X, Zap } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 import { useBackend, type DeviceAsset, type ExternalApplication, type FrontendChannel, type HardwareGateway } from '../context/BackendContext'
+import { stageLightingControlLoops, stageLightingPages, stageLightingPowerLoops, type StageLightingPage } from '../data/stageLighting'
+import { vlanAllocations, vlanSegments, type VlanSegment } from '../data/vlanPlan'
 
-type BackendTab = 'overview' | 'devices' | 'hardware' | 'applications' | 'channels' | 'api' | 'logs'
+type BackendTab = 'overview' | 'devices' | 'vlan' | 'lighting' | 'hardware' | 'applications' | 'channels' | 'api' | 'logs'
 
 const tabs: { id: BackendTab; label: string; icon: typeof Boxes }[] = [
   { id: 'overview', label: '后台总览', icon: Gauge },
   { id: 'devices', label: '设备资产', icon: Boxes },
+  { id: 'vlan', label: 'VLAN规划', icon: Network },
+  { id: 'lighting', label: '舞台灯光配置', icon: Zap },
   { id: 'hardware', label: '硬件与协议', icon: Cable },
   { id: 'applications', label: '外部系统接入', icon: CloudCog },
   { id: 'channels', label: '展示端配置', icon: MonitorCog },
@@ -22,7 +26,10 @@ export function BackendPage() {
   const [tab, setTab] = useState<BackendTab>('overview')
   const [query, setQuery] = useState('')
   const [deviceCategory, setDeviceCategory] = useState('全部')
+  const [vlanBusinessType, setVlanBusinessType] = useState('全部')
   const [selectedDeviceId, setSelectedDeviceId] = useState(backend.devices[0]?.id ?? '')
+  const [selectedVlanId, setSelectedVlanId] = useState(vlanSegments[0]?.id ?? '')
+  const [selectedLightingPageId, setSelectedLightingPageId] = useState(stageLightingPages[0]?.id ?? '')
   const [selectedGatewayId, setSelectedGatewayId] = useState(backend.gateways[0]?.id ?? '')
   const [selectedAppId, setSelectedAppId] = useState(backend.applications[0]?.id ?? '')
   const [deviceDraft, setDeviceDraft] = useState<DeviceAsset | null>(null)
@@ -34,6 +41,13 @@ export function BackendPage() {
 
   const filteredDevices = useMemo(() => backend.devices.filter((item) => (deviceCategory === '全部' || item.category === deviceCategory) && (!query || Object.values(item).some((value) => String(value).toLowerCase().includes(query.toLowerCase())))), [backend.devices, deviceCategory, query])
   const selectedDevice = backend.devices.find((item) => item.id === selectedDeviceId) ?? filteredDevices[0]
+  const filteredVlanSegments = useMemo(() => vlanSegments.filter((item) => (vlanBusinessType === '全部' || item.businessType === vlanBusinessType) && (!query || [item.businessType, item.project, item.gateway, item.networkSegments.join(' '), item.vlanIds.join(' '), item.remark].some((value) => value.toLowerCase().includes(query.toLowerCase())))), [query, vlanBusinessType])
+  const filteredVlanAllocations = useMemo(() => vlanAllocations.filter((item) => (vlanBusinessType === '全部' || vlanBusinessType === '设备网') && (!query || [item.zone, item.assetType, item.range, item.remark].some((value) => value.toLowerCase().includes(query.toLowerCase())))), [query, vlanBusinessType])
+  const selectedVlan = filteredVlanSegments.find((item) => item.id === selectedVlanId) ?? filteredVlanSegments[0]
+  const filteredLightingPages = useMemo(() => stageLightingPages.filter((item) => !query || [item.pageLabel, item.fixtureType, item.startAddress, item.stepRule, item.note].some((value) => value.toLowerCase().includes(query.toLowerCase()))), [query])
+  const filteredControlLoops = useMemo(() => stageLightingControlLoops.filter((item) => !query || [item.groupLabel, item.description].some((value) => value.toLowerCase().includes(query.toLowerCase()))), [query])
+  const filteredPowerLoops = useMemo(() => stageLightingPowerLoops.filter((item) => !query || [item.groupLabel, item.description].some((value) => value.toLowerCase().includes(query.toLowerCase()))), [query])
+  const selectedLightingPage = filteredLightingPages.find((item) => item.id === selectedLightingPageId) ?? filteredLightingPages[0]
   const selectedGateway = backend.gateways.find((item) => item.id === selectedGatewayId) ?? backend.gateways[0]
   const selectedApp = backend.applications.find((item) => item.id === selectedAppId) ?? backend.applications[0]
   const onlineDevices = backend.devices.filter((item) => ['在线', '高负载', '预警'].includes(item.status)).length
@@ -80,6 +94,8 @@ export function BackendPage() {
       <div className="backend-content">
         {tab === 'overview' && <BackendOverview devices={backend.devices.length} gateways={backend.gateways.length} apps={backend.applications.length} channels={backend.channels.length}/>} 
         {tab === 'devices' && <DevicesPanel devices={filteredDevices} selected={selectedDevice} query={query} setQuery={setQuery} category={deviceCategory} setCategory={setDeviceCategory} onSelect={setSelectedDeviceId} onAdd={() => setDeviceDraft({ ...blankDevice, id: `DEV-${String(backend.devices.length + 1).padStart(3, '0')}` })} onEdit={() => selectedDevice && setDeviceDraft({ ...selectedDevice })} onDelete={() => selectedDevice && setDeleteTarget({ kind: 'device', id: selectedDevice.id, name: selectedDevice.name })}/>} 
+        {tab === 'vlan' && <VlanPanel segments={filteredVlanSegments} allocations={filteredVlanAllocations} selected={selectedVlan} query={query} setQuery={setQuery} businessType={vlanBusinessType} setBusinessType={setVlanBusinessType} onSelect={setSelectedVlanId}/>}
+        {tab === 'lighting' && <StageLightingPanel pages={filteredLightingPages} selected={selectedLightingPage} controlLoops={filteredControlLoops} powerLoops={filteredPowerLoops} query={query} setQuery={setQuery} onSelect={setSelectedLightingPageId}/>}
         {tab === 'hardware' && <HardwarePanel gateways={backend.gateways} selected={selectedGateway} onSelect={setSelectedGatewayId} onEdit={() => selectedGateway && setGatewayDraft({ ...selectedGateway })} onTest={() => { if (selectedGateway) { backend.testGateway(selectedGateway.id); setFeedback(`${selectedGateway.name}模拟连接测试通过`) } }}/>} 
         {tab === 'applications' && <ApplicationsPanel items={backend.applications} selected={selectedApp} query={query} setQuery={setQuery} onSelect={setSelectedAppId} onAdd={() => setAppDraft({ ...blankApplication, id: `APP-${String(backend.applications.length + 1).padStart(3, '0')}` })} onEdit={() => selectedApp && setAppDraft({ ...selectedApp, scopes: [...selectedApp.scopes] })} onToggle={() => { if (!selectedApp) return; const status = selectedApp.status === '已启用' ? '已停用' : '已启用'; backend.updateApplication({ ...selectedApp, status }); setFeedback(`应用已${status === '已启用' ? '启用' : '停用'}`) }} onDelete={() => selectedApp && setDeleteTarget({ kind: 'application', id: selectedApp.id, name: selectedApp.name })}/>} 
         {tab === 'channels' && <ChannelsPanel channels={backend.channels} onEdit={(item) => setChannelDraft({ ...item })}/>} 
@@ -102,7 +118,147 @@ function BackendOverview({ devices, gateways, apps, channels }: { devices: numbe
 }
 
 function DevicesPanel({ devices, selected, query, setQuery, category, setCategory, onSelect, onAdd, onEdit, onDelete }: { devices: DeviceAsset[]; selected?: DeviceAsset; query: string; setQuery: (v: string) => void; category: string; setCategory: (v: string) => void; onSelect: (id: string) => void; onAdd: () => void; onEdit: () => void; onDelete: () => void }) {
-  return <div><PanelHead title="设备资产清单" description="统一维护设备编号、型号、位置、地址、协议、固件和运行状态。" action={<button className="primary-button" onClick={onAdd}><Plus size={15}/>添加设备</button>}/><div className="backend-toolbar"><label><Search size={15}/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="搜索编号、名称、位置、IP或协议"/></label><label className="backend-select"><Filter size={14}/><select value={category} onChange={(e) => setCategory(e.target.value)}><option>全部</option>{['视频监控','人员通行','信息发布','机房动环','UPS电源','无线网络','背景音乐','边缘网关'].map((item) => <option key={item}>{item}</option>)}</select></label><span>共 {devices.length} 台设备</span></div><div className="backend-split"><div className="backend-table device-admin-table"><div className="backend-table-head"><span>设备资产</span><span>分类/位置</span><span>网络与协议</span><span>状态</span></div>{devices.map((item) => <button className={selected?.id === item.id ? 'backend-table-row active' : 'backend-table-row'} onClick={() => onSelect(item.id)} key={item.id}><span><strong>{item.name}</strong><small>{item.id} · {item.vendor}</small></span><span><strong>{item.category}</strong><small>{item.location}</small></span><span><strong>{item.ip}</strong><small>{item.protocol}</small></span><Status value={item.status}/></button>)}{devices.length === 0 && <Empty/>}</div>{selected && <aside className="backend-detail"><div className="backend-device-icon"><Boxes size={24}/></div><h3>{selected.name}</h3><Status value={selected.status}/><dl><Detail label="资产编号" value={selected.id}/><Detail label="设备分类" value={selected.category}/><Detail label="厂家/型号" value={`${selected.vendor} / ${selected.model}`}/><Detail label="安装位置" value={selected.location}/><Detail label="地址" value={selected.ip}/><Detail label="接入协议" value={selected.protocol}/><Detail label="固件版本" value={selected.firmware}/><Detail label="最近心跳" value={selected.lastSeen}/></dl><div className="backend-detail-actions"><button onClick={onEdit}><Pencil size={14}/>编辑</button><button className="danger" onClick={onDelete}><Trash2 size={14}/>删除</button></div></aside>}</div></div>
+  return <div><PanelHead title="设备资产清单" description="统一维护设备编号、型号、位置、地址、协议、固件和运行状态。" action={<button className="primary-button" onClick={onAdd}><Plus size={15}/>添加设备</button>}/><div className="backend-toolbar"><label><Search size={15}/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="搜索编号、名称、位置、IP或协议"/></label><label className="backend-select"><Filter size={14}/><select value={category} onChange={(e) => setCategory(e.target.value)}><option>全部</option>{['视频监控','人员通行','信息发布','机房动环','UPS电源','无线网络','网络基础设施','背景音乐','边缘网关'].map((item) => <option key={item}>{item}</option>)}</select></label><span>共 {devices.length} 台设备</span></div><div className="backend-split"><div className="backend-table device-admin-table"><div className="backend-table-head"><span>设备资产</span><span>分类/位置</span><span>网络与协议</span><span>状态</span></div>{devices.map((item) => <button className={selected?.id === item.id ? 'backend-table-row active' : 'backend-table-row'} onClick={() => onSelect(item.id)} key={item.id}><span><strong>{item.name}</strong><small>{item.id} · {item.vendor}</small></span><span><strong>{item.category}</strong><small>{item.location}</small></span><span><strong>{item.ip}</strong><small>{item.protocol}</small></span><Status value={item.status}/></button>)}{devices.length === 0 && <Empty/>}</div>{selected && <aside className="backend-detail"><div className="backend-device-icon"><Boxes size={24}/></div><h3>{selected.name}</h3><Status value={selected.status}/><dl><Detail label="资产编号" value={selected.id}/><Detail label="设备分类" value={selected.category}/><Detail label="厂家/型号" value={`${selected.vendor} / ${selected.model}`}/><Detail label="安装位置" value={selected.location}/><Detail label="地址" value={selected.ip}/><Detail label="接入协议" value={selected.protocol}/><Detail label="固件版本" value={selected.firmware}/><Detail label="最近心跳" value={selected.lastSeen}/></dl><div className="backend-detail-actions"><button onClick={onEdit}><Pencil size={14}/>编辑</button><button className="danger" onClick={onDelete}><Trash2 size={14}/>删除</button></div></aside>}</div></div>
+}
+
+function VlanPanel({ segments, allocations, selected, query, setQuery, businessType, setBusinessType, onSelect }: { segments: VlanSegment[]; allocations: typeof vlanAllocations; selected?: VlanSegment; query: string; setQuery: (v: string) => void; businessType: string; setBusinessType: (v: string) => void; onSelect: (id: string) => void }) {
+  const vlanCount = Array.from(new Set(segments.flatMap((item) => item.vlanIds))).length
+  const totalPlannedIps = segments.reduce((sum, item) => sum + (item.ipDevices ?? 0), 0)
+  const totalExternalNeeds = segments.reduce((sum, item) => sum + (item.externalNeeds ?? 0), 0)
+  const zones = Array.from(new Set(allocations.map((item) => item.zone))).length
+
+  return <div>
+    <PanelHead title="VLAN规划 / 网络规划" description="根据 VLAN.csv 脱敏整理办公网、设备网、无线网的网段、网关、容量和安防地址分配规则。"/>
+    <div className="backend-toolbar">
+      <label><Search size={15}/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="搜索业务类型、项目、网段、VLAN或地址分配"/></label>
+      <label className="backend-select"><Filter size={14}/><select value={businessType} onChange={(e) => setBusinessType(e.target.value)}><option>全部</option>{Array.from(new Set(vlanSegments.map((item) => item.businessType))).map((item) => <option key={item}>{item}</option>)}</select></label>
+      <span>{segments.length} 条网段规划 · {allocations.length} 条地址分配</span>
+    </div>
+
+    <div className="vlan-summary-strip">
+      <article><small>规划业务域</small><strong>{Array.from(new Set(segments.map((item) => item.businessType))).length}</strong><span>办公网 / 设备网 / 无线网</span></article>
+      <article><small>唯一 VLAN</small><strong>{vlanCount}</strong><span>{segments.flatMap((item) => item.vlanIds).join(' / ')}</span></article>
+      <article><small>规划 IP 数</small><strong>{totalPlannedIps}</strong><span>按 CSV 中 IP设备数汇总</span></article>
+      <article><small>外网需求</small><strong>{totalExternalNeeds}</strong><span>{zones} 个安防地址分配区域</span></article>
+    </div>
+
+    <div className="backend-split vlan-split">
+      <div className="backend-table vlan-plan-table">
+        <div className="backend-table-head"><span>业务类型 / 项目</span><span>网段规划</span><span>网关 / VLAN</span><span>地址容量</span></div>
+        {segments.map((item) => <button className={selected?.id === item.id ? 'backend-table-row active' : 'backend-table-row'} onClick={() => onSelect(item.id)} key={item.id}>
+          <span><strong>{item.businessType}</strong><small>{item.project}</small></span>
+          <span><strong>{item.networkSegments[0]}</strong><small>{item.networkSegments.length > 1 ? `附加 ${item.networkSegments.length - 1} 条网段` : '单网段规划'}</small></span>
+          <span><strong>{item.gateway}</strong><small>{item.vlanIds.map((vlan) => `VLAN ${vlan}`).join(' / ')}</small></span>
+          <span><strong>{item.ipDevices ?? '--'} / {item.externalNeeds ?? '--'}</strong><small>设备数 / 外网需求</small></span>
+        </button>)}
+        {segments.length === 0 && <Empty/>}
+      </div>
+
+      {selected && <aside className="backend-detail vlan-detail">
+        <div className="backend-device-icon purple"><Network size={24}/></div>
+        <h3>{selected.project}</h3>
+        <Status value={selected.businessType === '设备网' ? '模拟可用' : '已发布'}/>
+        <div className="scope-list vlan-chip-list">
+          <span>VLAN 编号</span>
+          {selected.vlanIds.map((item) => <b key={item}>VLAN {item}</b>)}
+        </div>
+        <dl>
+          <Detail label="业务类型" value={selected.businessType}/>
+          <Detail label="默认网关" value={selected.gateway}/>
+          <Detail label="规划设备数" value={selected.ipDevices ? `${selected.ipDevices}` : '未填写'}/>
+          <Detail label="外网需求" value={selected.externalNeeds ? `${selected.externalNeeds}` : '未填写'}/>
+        </dl>
+        <div className="vlan-network-block">
+          <span>网段明细</span>
+          {selected.networkSegments.map((segment) => <code key={segment}>{segment}</code>)}
+        </div>
+        <div className="vlan-note">
+          <strong>实施说明</strong>
+          <p>{selected.remark || '当前条目没有补充说明。'}</p>
+        </div>
+      </aside>}
+    </div>
+
+    <div className="vlan-allocation-card">
+      <div className="backend-panel-head">
+        <div>
+          <h2>安防地址分配</h2>
+          <p>展示 B1F 与 1F 在 VLAN220 / VLAN221 上的监控、客流、门禁和闸机地址使用情况。</p>
+        </div>
+      </div>
+      <div className="vlan-allocation-table">
+        <div className="vlan-allocation-head"><span>区域 / VLAN</span><span>设备类型</span><span>地址范围</span><span>使用IP</span><span>预留IP</span><span>备注</span></div>
+        {allocations.map((item) => <div className="vlan-allocation-row" key={item.id}>
+          <span><strong>{item.zone}</strong></span>
+          <span>{item.assetType}</span>
+          <span>{item.range}</span>
+          <span>{item.usedIPs ?? '--'}</span>
+          <span>{item.reservedIPs ?? '--'}</span>
+          <span>{item.remark || '—'}</span>
+        </div>)}
+      </div>
+    </div>
+  </div>
+}
+
+function StageLightingPanel({ pages, selected, controlLoops, powerLoops, query, setQuery, onSelect }: { pages: StageLightingPage[]; selected?: StageLightingPage; controlLoops: typeof stageLightingControlLoops; powerLoops: typeof stageLightingPowerLoops; query: string; setQuery: (v: string) => void; onSelect: (id: string) => void }) {
+  return <div>
+    <PanelHead title="舞台灯光配置" description="根据 舞台灯.csv 整理灯具页、起始地址、递增规则以及控制线回路说明，用于现场灯控对照。"/>
+    <div className="backend-toolbar">
+      <label><Search size={15}/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="搜索灯具页、灯具类型、地址规则或回路说明"/></label>
+      <span>{pages.length} 组灯具页 · 控制线 {controlLoops.length} 组</span>
+    </div>
+    <div className="stage-lighting-layout backend-lighting-layout">
+      <article className="panel stage-lighting-panel">
+        <div className="panel-head">
+          <div><p className="panel-kicker">STAGE LIGHTING</p><h2>舞台灯光场景配置</h2></div>
+          <span className="catalog-hint">来自 CSV 配置</span>
+        </div>
+        <div className="stage-lighting-pages">
+          {pages.map((item) => <button key={item.id} className={selected?.id === item.id ? 'stage-page-card active' : 'stage-page-card'} onClick={() => onSelect(item.id)}>
+            <span className="stage-page-icon"><Zap size={18} /></span>
+            <div><strong>{item.fixtureType}</strong><small>{item.pageLabel}</small></div>
+            <b>{item.startAddress}</b>
+          </button>)}
+        </div>
+        {pages.length === 0 && <Empty/>}
+        {selected && <div className="stage-page-detail">
+          <header>
+            <div><span>当前灯具页</span><h3>{selected.pageLabel} · {selected.fixtureType}</h3></div>
+            <Status value="已配置" />
+          </header>
+          <div className="stage-page-metrics">
+            <MetricDetail label="起始地址" value={selected.startAddress} />
+            <MetricDetail label="递增规则" value={selected.stepRule} />
+            <MetricDetail label="控制对象" value={selected.fixtureType} />
+          </div>
+          <div className="stage-page-note"><strong>配置说明</strong><p>{selected.note}</p></div>
+        </div>}
+      </article>
+      <article className="panel stage-loop-panel">
+        <div className="panel-head">
+          <div><p className="panel-kicker">LOOPS & ROUTES</p><h2>舞台灯光回路说明</h2></div>
+          <span className="catalog-hint">控制线 / 电源线</span>
+        </div>
+        <div className="stage-loop-columns">
+          <section>
+            <h3>控制线回路</h3>
+            <div className="stage-loop-list">
+              {controlLoops.map((item) => <div className="stage-loop-row" key={item.id}><span>{item.groupLabel}</span><strong>{item.description}</strong></div>)}
+              {controlLoops.length === 0 && <div className="stage-loop-empty">没有匹配的控制线回路</div>}
+            </div>
+          </section>
+          <section>
+            <h3>电源线回路</h3>
+            <div className="stage-loop-list power">
+              {powerLoops.map((item) => <div className="stage-loop-row muted" key={item.id}><span>{item.groupLabel}</span><strong>{item.description}</strong></div>)}
+              {powerLoops.length === 0 && <div className="stage-loop-empty">没有匹配的电源线回路</div>}
+            </div>
+          </section>
+        </div>
+      </article>
+    </div>
+  </div>
 }
 
 function HardwarePanel({ gateways, selected, onSelect, onEdit, onTest }: { gateways: HardwareGateway[]; selected?: HardwareGateway; onSelect: (id: string) => void; onEdit: () => void; onTest: () => void }) {
@@ -129,7 +285,7 @@ function LogsPanel({ items, query, setQuery }: { items: ReturnType<typeof useBac
 }
 
 function DeviceForm({ value, onChange }: { value: DeviceAsset; onChange: (v: DeviceAsset) => void }) {
-  return <div className="config-form"><Field label="设备编号"><input value={value.id} onChange={(e) => onChange({ ...value, id: e.target.value })}/></Field><Field label="设备名称"><input value={value.name} onChange={(e) => onChange({ ...value, name: e.target.value })}/></Field><Field label="设备分类"><select value={value.category} onChange={(e) => onChange({ ...value, category: e.target.value })}>{['视频监控','人员通行','信息发布','机房动环','UPS电源','无线网络','背景音乐','边缘网关'].map((item) => <option key={item}>{item}</option>)}</select></Field><Field label="厂家"><input value={value.vendor} onChange={(e) => onChange({ ...value, vendor: e.target.value })}/></Field><Field label="型号"><input value={value.model} onChange={(e) => onChange({ ...value, model: e.target.value })}/></Field><Field label="安装位置"><input value={value.location} onChange={(e) => onChange({ ...value, location: e.target.value })}/></Field><Field label="IP/端口/总线地址"><input value={value.ip} onChange={(e) => onChange({ ...value, ip: e.target.value })}/></Field><Field label="接入协议"><input value={value.protocol} onChange={(e) => onChange({ ...value, protocol: e.target.value })}/></Field><Field label="运行状态"><select value={value.status} onChange={(e) => onChange({ ...value, status: e.target.value })}>{['在线','离线','故障','高负载','预警','待配置'].map((item) => <option key={item}>{item}</option>)}</select></Field><Field label="固件版本"><input value={value.firmware} onChange={(e) => onChange({ ...value, firmware: e.target.value })}/></Field></div>
+  return <div className="config-form"><Field label="设备编号"><input value={value.id} onChange={(e) => onChange({ ...value, id: e.target.value })}/></Field><Field label="设备名称"><input value={value.name} onChange={(e) => onChange({ ...value, name: e.target.value })}/></Field><Field label="设备分类"><select value={value.category} onChange={(e) => onChange({ ...value, category: e.target.value })}>{['视频监控','人员通行','信息发布','机房动环','UPS电源','无线网络','网络基础设施','背景音乐','边缘网关'].map((item) => <option key={item}>{item}</option>)}</select></Field><Field label="厂家"><input value={value.vendor} onChange={(e) => onChange({ ...value, vendor: e.target.value })}/></Field><Field label="型号"><input value={value.model} onChange={(e) => onChange({ ...value, model: e.target.value })}/></Field><Field label="安装位置"><input value={value.location} onChange={(e) => onChange({ ...value, location: e.target.value })}/></Field><Field label="IP/端口/总线地址"><input value={value.ip} onChange={(e) => onChange({ ...value, ip: e.target.value })}/></Field><Field label="接入协议"><input value={value.protocol} onChange={(e) => onChange({ ...value, protocol: e.target.value })}/></Field><Field label="运行状态"><select value={value.status} onChange={(e) => onChange({ ...value, status: e.target.value })}>{['在线','离线','故障','高负载','预警','待配置'].map((item) => <option key={item}>{item}</option>)}</select></Field><Field label="固件版本"><input value={value.firmware} onChange={(e) => onChange({ ...value, firmware: e.target.value })}/></Field></div>
 }
 
 function GatewayForm({ value, onChange }: { value: HardwareGateway; onChange: (v: HardwareGateway) => void }) {
@@ -152,6 +308,7 @@ function PanelHead({ title, description, action }: { title: string; description:
 function SummaryCard({ icon: Icon, label, value, note, tone }: { icon: typeof Boxes; label: string; value: string; note: string; tone: string }) { return <article className={`backend-summary-card ${tone}`}><span><Icon size={20}/></span><div><small>{label}</small><strong>{value}</strong><p>{note}</p></div></article> }
 function Node({ icon: Icon, title, note, active }: { icon: typeof Boxes; title: string; note: string; active?: boolean }) { return <div className={active ? 'architecture-node active' : 'architecture-node'}><Icon size={19}/><strong>{title}</strong><span>{note}</span></div> }
 function Detail({ label, value }: { label: string; value: string }) { return <div><dt>{label}</dt><dd>{value}</dd></div> }
+function MetricDetail({ label, value }: { label: string; value: string }) { return <div className="detail-item"><span>{label}</span><strong>{value}</strong></div> }
 function Field({ label, children, wide }: { label: string; children: ReactNode; wide?: boolean }) { return <label className={wide ? 'wide' : ''}><span>{label}</span>{children}</label> }
-function Status({ value }: { value: string }) { const tone = ['故障','离线','已停用'].includes(value) ? 'danger' : ['预警','高负载','待配置','草案','即将满员'].includes(value) ? 'warning' : ['在线','模拟运行','已启用','已发布','模拟可用','成功'].includes(value) ? 'success' : 'info'; return <b className={`backend-status ${tone}`}>{value}</b> }
+function Status({ value }: { value: string }) { const tone = ['故障','离线','已停用'].includes(value) ? 'danger' : ['预警','高负载','待配置','草案','即将满员'].includes(value) ? 'warning' : ['在线','模拟运行','已启用','已发布','模拟可用','成功','已配置'].includes(value) ? 'success' : 'info'; return <b className={`backend-status ${tone}`}>{value}</b> }
 function Empty() { return <div className="backend-empty"><Search size={25}/><strong>没有匹配的数据</strong><span>调整搜索或筛选条件</span></div> }

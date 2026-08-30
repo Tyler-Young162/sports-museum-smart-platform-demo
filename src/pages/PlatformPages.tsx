@@ -10,6 +10,7 @@ import {
   Car,
   Check,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   CircleAlert,
   CircleCheck,
@@ -57,24 +58,21 @@ import {
   X,
   Zap,
 } from 'lucide-react'
-import { useMemo, useState, type ComponentType, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react'
 import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Link } from 'react-router-dom'
+import { useBackend, type DeviceAsset } from '../context/BackendContext'
 import { useDemo } from '../context/DemoContext'
 import {
   accessPoints,
-  accessRecords,
   audioZones,
   demoScenarios,
   displayScreens,
   mapNodes,
-  personnel,
   publishingTasks,
   sensors,
   systemInterfaces,
   upsDevices,
-  vehicles,
-  visitors,
   type AlarmLevel,
   type AlarmRecord,
   type AlarmStatus,
@@ -157,33 +155,192 @@ function AlarmDetail({ alarm, onAcknowledge, onDispatch, onClose }: { alarm: Ala
 }
 
 export function AccessPage() {
-  const [tab, setTab] = useState<'records' | 'personnel' | 'visitors' | 'vehicles'>('records')
+  const backend = useBackend()
   const [query, setQuery] = useState('')
-  const [visitorData, setVisitorData] = useState(visitors)
-  const [qrVisitor, setQrVisitor] = useState<(typeof visitors)[number] | null>(null)
+  const [status, setStatus] = useState<'全部' | string>('全部')
+  const [deviceType, setDeviceType] = useState<'全部' | string>('全部')
+  const [selectedId, setSelectedId] = useState('')
+  const [expandedZones, setExpandedZones] = useState<string[]>([])
   const [feedback, setFeedback] = useState('')
-  const [selectedRecord, setSelectedRecord] = useState(accessRecords[0])
-  const tabs = [{ id: 'records', label: '通行记录' }, { id: 'personnel', label: '人员档案' }, { id: 'visitors', label: '访客预约' }, { id: 'vehicles', label: '车辆通行' }] as const
-  const keyword = query.trim().toLowerCase()
-  function approveVisitor(id: string) {
-    setVisitorData((items) => items.map((item) => item.id === id ? { ...item, status: '已通过', qr: '待核验' } : item))
-    setFeedback('访客预约已审批通过，二维码已生成')
+  const accessDevices = useMemo(() => backend.devices.filter((item) => item.category === '人员通行'), [backend.devices])
+  const deviceTypes = useMemo(() => Array.from(new Set(accessDevices.map((item) => classifyAccessDevice(item)))), [accessDevices])
+  const filteredDevices = useMemo(() => {
+    const keyword = query.trim().toLowerCase()
+    return accessDevices.filter((item) => {
+      const currentType = classifyAccessDevice(item)
+      const matchesQuery = !keyword || [item.id, item.name, item.location, item.ip, item.protocol].some((value) => value.toLowerCase().includes(keyword))
+      const matchesStatus = status === '全部' || item.status === status
+      const matchesType = deviceType === '全部' || currentType === deviceType
+      return matchesQuery && matchesStatus && matchesType
+    })
+  }, [accessDevices, deviceType, query, status])
+  const groupedDevices = useMemo(() => {
+    const buckets = new Map<string, DeviceAsset[]>()
+    filteredDevices.forEach((item) => {
+      const zone = resolveAccessZone(item.location)
+      const current = buckets.get(zone.id) ?? []
+      current.push(item)
+      buckets.set(zone.id, current)
+    })
+    return Array.from(buckets.entries()).map(([zoneId, items]) => ({
+      zoneId,
+      zoneName: accessZoneNames[zoneId] ?? zoneId,
+      items,
+    }))
+  }, [filteredDevices])
+  const selectedDevice = filteredDevices.find((item) => item.id === selectedId) ?? filteredDevices[0] ?? null
+  const onlineCount = accessDevices.filter((item) => ['在线', '高负载', '预警'].includes(item.status)).length
+  const alertCount = accessDevices.filter((item) => ['离线', '故障', '待配置'].includes(item.status)).length
+
+  useEffect(() => {
+    setExpandedZones((current) => current.length > 0 ? current : Array.from(new Set(accessDevices.map((item) => resolveAccessZone(item.location).id))))
+  }, [accessDevices])
+
+  useEffect(() => {
+    if (!selectedDevice) return
+    if (selectedId !== selectedDevice.id) setSelectedId(selectedDevice.id)
+  }, [selectedDevice, selectedId])
+
+  function toggleZone(zoneId: string) {
+    setExpandedZones((current) => current.includes(zoneId) ? current.filter((item) => item !== zoneId) : [...current, zoneId])
+  }
+
+  function selectDevice(device: DeviceAsset) {
+    setSelectedId(device.id)
+    const zoneId = resolveAccessZone(device.location).id
+    setExpandedZones((current) => current.includes(zoneId) ? current : [...current, zoneId])
   }
 
   return <div className="page operations-page">
-    <PageTitle eyebrow="ACCESS & VISITOR MANAGEMENT" title="人员通行管理" description="统一管理人员、访客、门禁、车辆和人车关联信息" action={<button className="primary-button" onClick={() => { setTab('visitors'); setFeedback('已打开访客预约登记流程') }}><Plus size={16} />新建访客预约</button>} />
-    <section className="metric-row four"><Metric label="今日通行" value="1,428" note="入场 786 / 出场 642" tone="cyan" icon={DoorOpen} /><Metric label="当前在馆" value="386" note="员工42 · 访客344" tone="green" icon={Users} /><Metric label="今日访客" value="86" note="待到访 18" tone="purple" icon={UserCheck} /><Metric label="在场车辆" value="23" note="访客车辆 6" tone="orange" icon={Car} /></section>
-    <section className="panel tabbed-panel">
-      <div className="module-tabs">{tabs.map((item) => <button key={item.id} className={tab === item.id ? 'active' : ''} onClick={() => setTab(item.id)}>{item.label}</button>)}</div>
-      <div className="data-toolbar"><label className="module-search grow"><Search size={15} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索姓名、编号、门禁位置或车牌" /></label><button className="outline-button"><Download size={14} />导出记录</button></div>
-      {tab === 'records' && <div className="access-grid"><div className="data-table access-table"><div className="table-head"><span>人员</span><span>人员类型</span><span>通行位置</span><span>方式</span><span>时间</span><span>结果</span></div>{accessRecords.filter((item) => !keyword || Object.values(item).some((value) => String(value).toLowerCase().includes(keyword))).map((record) => <button key={record.id} className={selectedRecord.id === record.id ? 'table-row active' : 'table-row'} onClick={() => setSelectedRecord(record)}><span className="person-cell"><i>{record.image}</i><strong>{record.name}</strong></span><span>{record.personType}</span><span>{record.gate} · {record.direction}</span><span>{record.credential}</span><span>{record.time}</span><span><StatusChip value={record.result} /></span></button>)}</div><aside className="record-preview"><div className="portrait-placeholder">{selectedRecord.image}</div><h3>{selectedRecord.name}</h3><StatusChip value={selectedRecord.result} /><div className="scan-line" /><DetailItem label="记录编号" value={selectedRecord.id} /><DetailItem label="通行位置" value={selectedRecord.gate} /><DetailItem label="核验方式" value={selectedRecord.credential} /><DetailItem label="通行方向" value={selectedRecord.direction} /><button className="outline-button" onClick={() => setFeedback('已定位到门禁设备') }><MapPin size={14} />定位门禁</button></aside></div>}
-      {tab === 'personnel' && <div className="card-table-grid">{personnel.filter((item) => !keyword || Object.values(item).some((value) => String(value).toLowerCase().includes(keyword))).map((person) => <article className="entity-card" key={person.id}><div className="entity-avatar">{person.name[0]}</div><div className="entity-title"><h3>{person.name}</h3><span>{person.id} · {person.department}</span></div><StatusChip value={person.status} /><div className="entity-details"><DetailItem label="岗位" value={person.role} /><DetailItem label="联系电话" value={person.phone} /><DetailItem label="人脸信息" value={person.face} /><DetailItem label="关联车辆" value={person.vehicles} /><DetailItem label="通行权限" value={person.access} /></div><button className="outline-button" onClick={() => setFeedback(`${person.name}的权限配置已打开`)}><ShieldCheck size={14} />配置权限</button></article>)}</div>}
-      {tab === 'visitors' && <div className="data-table visitor-table"><div className="table-head"><span>预约编号</span><span>访客信息</span><span>被访人</span><span>到访时间</span><span>人数</span><span>状态</span><span>操作</span></div>{visitorData.filter((item) => !keyword || Object.values(item).some((value) => String(value).toLowerCase().includes(keyword))).map((visitor) => <div className="table-row" key={visitor.id}><span>{visitor.id}</span><span className="primary-cell"><strong>{visitor.name}</strong><small>{visitor.company}</small></span><span>{visitor.host}</span><span>{visitor.visitTime}</span><span>{visitor.people}人</span><span><StatusChip value={visitor.status} /></span><span className="row-actions">{visitor.status === '待审批' ? <button onClick={() => approveVisitor(visitor.id)}><Check size={13} />审批</button> : <button onClick={() => setQrVisitor(visitor)}><QrCode size={13} />二维码</button>}</span></div>)}</div>}
-      {tab === 'vehicles' && <div className="data-table vehicle-table"><div className="table-head"><span>记录编号</span><span>车牌/车主</span><span>类型</span><span>出入口</span><span>入场</span><span>离场</span><span>状态</span></div>{vehicles.filter((item) => !keyword || Object.values(item).some((value) => String(value).toLowerCase().includes(keyword))).map((vehicle) => <div className="table-row" key={vehicle.id}><span>{vehicle.id}</span><span className="primary-cell"><strong>{vehicle.plate}</strong><small>关联人员：{vehicle.owner}</small></span><span>{vehicle.type}</span><span>{vehicle.gate}</span><span>{vehicle.enter}</span><span>{vehicle.leave}</span><span><StatusChip value={vehicle.status} /></span></div>)}</div>}
+    <PageTitle eyebrow="ACCESS & VISITOR MANAGEMENT" title="人员通行管理" description="按楼层区域管理门禁、闸机、客流等人员通行设备，统一查看状态与资产信息" action={<button className="outline-button" onClick={() => setFeedback('人员通行设备已从技术后台同步')}><RefreshCw size={15} />同步设备资产</button>} />
+    <section className="metric-row four"><Metric label="人员通行设备" value={String(accessDevices.length)} note={`${filteredDevices.length} 台当前在列表中`} tone="cyan" icon={DoorOpen} /><Metric label="在线运行" value={String(onlineCount)} note="在线 / 预警 / 高负载" tone="green" icon={Users} /><Metric label="待处理设备" value={String(alertCount)} note="离线 / 故障 / 待配置" tone="orange" icon={UserCheck} /><Metric label="区域分组" value={String(groupedDevices.length)} note={`${deviceTypes.length} 类设备`} tone="purple" icon={Car} /></section>
+    <section className="access-device-workspace">
+      <aside className="access-device-tree panel">
+        <div className="camera-tree-head">
+          <div><p className="panel-kicker">设备目录</p><h2>人员通行设备</h2></div>
+          <span className="access-tree-count">{filteredDevices.length} 台</span>
+        </div>
+        <label className="module-search"><Search size={15} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索设备名称、编号、位置或IP" /></label>
+        <div className="access-tree-filter-row">
+          <label className="compact-select"><ListFilter size={14} /><select value={deviceType} onChange={(event) => setDeviceType(event.target.value)}><option value="全部">全部类型</option>{deviceTypes.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+          <label className="compact-select"><Activity size={14} /><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="全部">全部状态</option>{Array.from(new Set(accessDevices.map((item) => item.status))).map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+        </div>
+        <div className="floor-tree">
+          {groupedDevices.map((group) => {
+            const expanded = expandedZones.includes(group.zoneId)
+            const active = selectedDevice ? resolveAccessZone(selectedDevice.location).id === group.zoneId : false
+            return <div className="floor-group" key={group.zoneId}>
+              <button className={active ? 'floor-row active' : 'floor-row'} onClick={() => toggleZone(group.zoneId)}>
+                <ChevronDown size={15} style={{ transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .16s ease' }} />
+                <strong>{group.zoneName}</strong><span>{group.items.length} 台</span>
+              </button>
+              {expanded && <div className="camera-items">
+                {group.items.map((device) => <button key={device.id} className={device.id === selectedDevice?.id ? 'camera-item active' : 'camera-item'} onClick={() => selectDevice(device)}>
+                  <span className={`camera-status ${mapDeviceTone(device.status)}`}><DoorOpen size={14} /></span>
+                  <span className="camera-label"><strong>{device.name}</strong><small>{device.id} · {classifyAccessDevice(device)}</small></span>
+                  <i className={mapDeviceTone(device.status)} title={device.status} />
+                </button>)}
+              </div>}
+            </div>
+          })}
+          {groupedDevices.length === 0 && <div className="catalog-empty"><Search size={22} /><strong>没有匹配的人员通行设备</strong><span>请调整搜索关键词或筛选条件</span></div>}
+        </div>
+      </aside>
+
+      <div className="video-main">
+        {selectedDevice && <article className="selected-camera-strip panel">
+          <div className="selected-camera-identity">
+            <span className={`camera-status ${mapDeviceTone(selectedDevice.status)}`}><DoorOpen size={15} /></span>
+            <div><p className="panel-kicker">当前选中</p><h2>{selectedDevice.name}</h2></div>
+            <span className={`device-state ${mapDeviceTone(selectedDevice.status)}`}><i />{selectedDevice.status}</span>
+          </div>
+          <div className="selected-camera-facts access-selected-facts">
+            <span><small>设备编号</small><strong>{selectedDevice.id}</strong></span>
+            <span><small>设备类型</small><strong>{classifyAccessDevice(selectedDevice)}</strong></span>
+            <span><small>安装位置</small><strong>{selectedDevice.location}</strong></span>
+            <span><small>通信地址</small><strong>{selectedDevice.ip}</strong></span>
+          </div>
+          <div className="video-summary compact" aria-label="人员通行设备统计">
+            <span><i className="online" />在线 <strong>{onlineCount}</strong></span>
+            <span><i className="fault" />待处理 <strong>{alertCount}</strong></span>
+            <span><DoorOpen size={13} />总数 <strong>{accessDevices.length}</strong></span>
+          </div>
+          <div className="selected-camera-actions">
+            <button title="定位设备" onClick={() => setFeedback(`已定位：${selectedDevice.location}`)}><MapPin size={15} /></button>
+            <Link className="access-link-button" to="/backend" title="查看后台资产"><Info size={15} /></Link>
+            <button title="刷新状态" onClick={() => setFeedback(`${selectedDevice.name} 状态已刷新`)}><RotateCcw size={15} /></button>
+          </div>
+        </article>}
+
+        <article className="panel access-device-panel">
+          <div className="player-toolbar">
+            <div>
+              <p className="panel-kicker">设备清单</p>
+              <h2>按楼层区域展示的人员通行设备</h2>
+            </div>
+            <span className="catalog-hint">当前仅接入技术后台中的真实设备资产，不再展示原有演示通行记录</span>
+          </div>
+          <div className="access-device-grid">
+            <div className="data-table access-device-table">
+              <div className="table-head"><span>设备名称</span><span>类型/位置</span><span>网络与协议</span><span>最近心跳</span><span>状态</span></div>
+              {filteredDevices.length === 0 ? <EmptySearch /> : filteredDevices.map((device) => <button key={device.id} className={selectedDevice?.id === device.id ? 'table-row active' : 'table-row'} onClick={() => selectDevice(device)}>
+                <span className="primary-cell"><strong>{device.name}</strong><small>{device.id} · {device.vendor}</small></span>
+                <span className="primary-cell"><strong>{classifyAccessDevice(device)}</strong><small>{device.location}</small></span>
+                <span className="primary-cell"><strong>{device.ip}</strong><small>{device.protocol}</small></span>
+                <span className="primary-cell"><strong>{device.lastSeen}</strong><small>{device.firmware}</small></span>
+                <span><StatusChip value={device.status} /></span>
+              </button>)}
+            </div>
+            {selectedDevice && <aside className="panel access-device-detail">
+              <div className={`access-device-icon ${mapDeviceTone(selectedDevice.status)}`}><DoorOpen size={28} /></div>
+              <h3>{selectedDevice.name}</h3>
+              <StatusChip value={selectedDevice.status} />
+              <div className="scan-line" />
+              <DetailItem label="资产编号" value={selectedDevice.id} />
+              <DetailItem label="设备类型" value={classifyAccessDevice(selectedDevice)} />
+              <DetailItem label="安装位置" value={selectedDevice.location} />
+              <DetailItem label="厂商 / 型号" value={`${selectedDevice.vendor} / ${selectedDevice.model}`} />
+              <DetailItem label="通信地址" value={selectedDevice.ip} />
+              <DetailItem label="接入协议" value={selectedDevice.protocol} />
+              <DetailItem label="固件版本" value={selectedDevice.firmware} />
+              <DetailItem label="最近心跳" value={selectedDevice.lastSeen} />
+              <button className="outline-button" onClick={() => setFeedback(`${selectedDevice.name} 设备档案已展开`) }><ShieldCheck size={14} />查看设备档案</button>
+            </aside>}
+          </div>
+        </article>
+      </div>
     </section>
     {feedback && <LocalToast text={feedback} onClose={() => setFeedback('')} />}
-    {qrVisitor && <Modal title="访客通行二维码" onClose={() => setQrVisitor(null)}><div className="qr-modal"><div className="qr-pattern"><QrCode size={126} /></div><h3>{qrVisitor.name}</h3><p>{qrVisitor.id} · {qrVisitor.visitTime}</p><StatusChip value={qrVisitor.qr} /><small>二维码仅限本人在预约时段使用，核验后自动失效</small><button className="primary-button" onClick={() => setFeedback('访客二维码发送任务已模拟完成')}><Smartphone size={15} />模拟发送至访客</button></div></Modal>}
   </div>
+}
+
+const accessZoneNames: Record<string, string> = {
+  B1F: 'B1F',
+  '1F': '1F',
+  机房: '机房',
+  其他区域: '其他区域',
+}
+
+function resolveAccessZone(location: string) {
+  const normalized = location.toUpperCase()
+  if (normalized.includes('B1F') || normalized.includes('B1')) return { id: 'B1F' }
+  if (normalized.includes('1F')) return { id: '1F' }
+  if (location.includes('机房')) return { id: '机房' }
+  return { id: '其他区域' }
+}
+
+function classifyAccessDevice(device: DeviceAsset) {
+  const signature = `${device.id} ${device.name}`.toLowerCase()
+  if (signature.includes('客流') || device.id.startsWith('FC-')) return '客流设备'
+  if (signature.includes('闸机')) return '闸机设备'
+  if (signature.includes('门禁') || device.id.startsWith('AC-')) return '门禁设备'
+  return '人员通行设备'
+}
+
+function mapDeviceTone(status: string) {
+  if (['在线', '模拟运行', '已启用'].includes(status)) return 'online'
+  if (['预警', '高负载', '故障'].includes(status)) return 'fault'
+  return 'offline'
 }
 
 export function PublishingPage() {
@@ -270,9 +427,26 @@ const networkTrend = [{ time: '08:00', traffic: 120, clients: 68 }, { time: '09:
 export function NetworkPage() {
   const [selectedId, setSelectedId] = useState(accessPoints[0].id)
   const [query, setQuery] = useState('')
+  const [status, setStatus] = useState<'全部' | (typeof accessPoints)[number]['status']>('全部')
   const [feedback, setFeedback] = useState('')
-  const selected = accessPoints.find((item) => item.id === selectedId) ?? accessPoints[0]
-  return <div className="page operations-page"><PageTitle eyebrow="WIRELESS NETWORK" title="无线网络管理" description="监测无线AP、接入终端、流量、负载和网络告警" action={<button className="outline-button" onClick={() => setFeedback('网管协议数据已模拟同步')}><RefreshCw size={15} />同步网管数据</button>} /><section className="metric-row five"><Metric label="无线AP" value="62" note="在线61 · 异常1" tone="cyan" icon={RadioTower} /><Metric label="接入终端" value="326" note="访客终端284" tone="green" icon={Smartphone} /><Metric label="实时流量" value="512Mbps" note="出口利用率42%" tone="purple" icon={Activity} /><Metric label="高负载AP" value="1" note="互动体验区" tone="orange" icon={Gauge} /><Metric label="网络健康度" value="98.4%" note="整体运行稳定" tone="green" icon={Wifi} /></section><section className="network-layout"><article className="panel network-chart"><div className="panel-head"><div><p className="panel-kicker">网络趋势</p><h2>终端与出口流量</h2></div><span className="live-indicator"><i />实时</span></div><ResponsiveContainer width="100%" height={240}><AreaChart data={networkTrend}><defs><linearGradient id="networkFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#45c5ff" stopOpacity={.35}/><stop offset="100%" stopColor="#45c5ff" stopOpacity={0}/></linearGradient></defs><CartesianGrid stroke="#20344e" strokeDasharray="3 6" vertical={false}/><XAxis dataKey="time" stroke="#60758b" fontSize={9} axisLine={false}/><YAxis stroke="#60758b" fontSize={9} axisLine={false}/><Tooltip contentStyle={{ background: '#0d1e33', border: '1px solid #263d5a', borderRadius: 8 }}/><Area type="monotone" dataKey="traffic" stroke="#45c5ff" fill="url(#networkFill)" strokeWidth={2.5}/><Line type="monotone" dataKey="clients" stroke="#4be1bd" strokeWidth={2}/></AreaChart></ResponsiveContainer></article><aside className="panel ap-detail"><div className="ap-signal"><Wifi size={30} /><i /><i /><i /></div><h2>{selected.name}</h2><StatusChip value={selected.status} /><DetailItem label="设备编号" value={selected.id} /><DetailItem label="安装位置" value={selected.location} /><DetailItem label="接入终端" value={`${selected.clients}台`} /><DetailItem label="实时流量" value={selected.traffic} /><DetailItem label="无线信道" value={selected.channel} /><DetailItem label="持续运行" value={selected.uptime} /><button className="outline-button" onClick={() => setFeedback(`${selected.name}已模拟重启`)}><RotateCcw size={14} />模拟重启AP</button></aside></section><section className="panel data-panel"><div className="data-toolbar"><label className="module-search grow"><Search size={15}/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索AP名称、编号或位置" /></label><label className="compact-select"><ListFilter size={14}/><select><option>全部状态</option><option>在线</option><option>高负载</option><option>离线</option></select></label></div><div className="data-table ap-table"><div className="table-head"><span>AP设备</span><span>安装位置</span><span>终端数</span><span>实时流量</span><span>信道</span><span>运行时长</span><span>状态</span></div>{accessPoints.filter((item) => !query || [item.id,item.name,item.location].some((value) => value.includes(query))).map((ap) => <button className={selected.id === ap.id ? 'table-row active' : 'table-row'} onClick={() => setSelectedId(ap.id)} key={ap.id}><span className="primary-cell"><strong>{ap.name}</strong><small>{ap.id}</small></span><span>{ap.location}</span><span>{ap.clients}台</span><span>{ap.traffic}</span><span>CH {ap.channel}</span><span>{ap.uptime}</span><span><StatusChip value={ap.status}/></span></button>)}</div></section>{feedback && <LocalToast text={feedback} onClose={() => setFeedback('')}/>}</div>
+  const filteredAccessPoints = useMemo(() => {
+    const keyword = query.trim().toLowerCase()
+    return accessPoints.filter((item) => {
+      const matchesQuery = !keyword || [item.id, item.name, item.location].some((value) => value.toLowerCase().includes(keyword))
+      const matchesStatus = status === '全部' || item.status === status
+      return matchesQuery && matchesStatus
+    })
+  }, [query, status])
+  const selected = filteredAccessPoints.find((item) => item.id === selectedId) ?? filteredAccessPoints[0] ?? accessPoints[0]
+
+  useEffect(() => {
+    if (filteredAccessPoints.length === 0) return
+    if (!filteredAccessPoints.some((item) => item.id === selectedId)) {
+      setSelectedId(filteredAccessPoints[0].id)
+    }
+  }, [filteredAccessPoints, selectedId])
+
+  return <div className="page operations-page"><PageTitle eyebrow="WIRELESS NETWORK" title="无线网络管理" description="监测无线AP、接入终端、流量、负载和网络告警" action={<button className="outline-button" onClick={() => setFeedback('网管协议数据已模拟同步')}><RefreshCw size={15} />同步网管数据</button>} /><section className="metric-row five"><Metric label="无线AP" value="62" note="在线61 · 异常1" tone="cyan" icon={RadioTower} /><Metric label="接入终端" value="326" note="访客终端284" tone="green" icon={Smartphone} /><Metric label="实时流量" value="512Mbps" note="出口利用率42%" tone="purple" icon={Activity} /><Metric label="高负载AP" value="1" note="互动体验区" tone="orange" icon={Gauge} /><Metric label="网络健康度" value="98.4%" note="整体运行稳定" tone="green" icon={Wifi} /></section><section className="network-layout"><article className="panel network-chart"><div className="panel-head"><div><p className="panel-kicker">网络趋势</p><h2>终端与出口流量</h2></div><span className="live-indicator"><i />实时</span></div><ResponsiveContainer width="100%" height={240}><AreaChart data={networkTrend}><defs><linearGradient id="networkFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#45c5ff" stopOpacity={.35}/><stop offset="100%" stopColor="#45c5ff" stopOpacity={0}/></linearGradient></defs><CartesianGrid stroke="#20344e" strokeDasharray="3 6" vertical={false}/><XAxis dataKey="time" stroke="#60758b" fontSize={9} axisLine={false}/><YAxis stroke="#60758b" fontSize={9} axisLine={false}/><Tooltip contentStyle={{ background: '#0d1e33', border: '1px solid #263d5a', borderRadius: 8 }}/><Area type="monotone" dataKey="traffic" stroke="#45c5ff" fill="url(#networkFill)" strokeWidth={2.5}/><Line type="monotone" dataKey="clients" stroke="#4be1bd" strokeWidth={2}/></AreaChart></ResponsiveContainer></article><aside className="panel ap-detail"><div className="ap-signal"><Wifi size={30} /><i /><i /><i /></div><h2>{selected.name}</h2><StatusChip value={selected.status} /><DetailItem label="设备编号" value={selected.id} /><DetailItem label="安装位置" value={selected.location} /><DetailItem label="接入终端" value={`${selected.clients}台`} /><DetailItem label="实时流量" value={selected.traffic} /><DetailItem label="无线信道" value={selected.channel} /><DetailItem label="持续运行" value={selected.uptime} /><button className="outline-button" onClick={() => setFeedback(`${selected.name}已模拟重启`)}><RotateCcw size={14} />模拟重启AP</button></aside></section><section className="panel data-panel"><div className="data-toolbar"><label className="module-search grow"><Search size={15}/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索AP名称、编号或位置" /></label><label className="compact-select"><ListFilter size={14}/><select value={status} onChange={(event) => setStatus(event.target.value as typeof status)}><option value="全部">全部状态</option><option value="在线">在线</option><option value="高负载">高负载</option><option value="离线">离线</option></select></label></div><div className="data-table ap-table"><div className="table-head"><span>AP设备</span><span>安装位置</span><span>终端数</span><span>实时流量</span><span>信道</span><span>运行时长</span><span>状态</span></div>{filteredAccessPoints.length === 0 ? <EmptySearch /> : filteredAccessPoints.map((ap) => <button className={selected.id === ap.id ? 'table-row active' : 'table-row'} onClick={() => setSelectedId(ap.id)} key={ap.id}><span className="primary-cell"><strong>{ap.name}</strong><small>{ap.id}</small></span><span>{ap.location}</span><span>{ap.clients}台</span><span>{ap.traffic}</span><span>CH {ap.channel}</span><span>{ap.uptime}</span><span><StatusChip value={ap.status}/></span></button>)}</div></section>{feedback && <LocalToast text={feedback} onClose={() => setFeedback('')}/>}</div>
 }
 
 export function InterfacesPage() {
