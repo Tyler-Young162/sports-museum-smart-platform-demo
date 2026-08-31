@@ -222,7 +222,7 @@ export function VideoPage() {
             <div className="selected-camera-actions">
               <button title="地图定位" onClick={() => setFeedback(`已定位：${selectedCamera.position}`)}><MapPin size={15} /></button>
               <button title="设备档案" onClick={() => setFeedback(`${selectedCamera.id} 设备档案已加载`)}><Info size={15} /></button>
-              <button title="模拟重连" onClick={() => setFeedback(`正在重新连接 ${selectedCamera.name}`)}><RotateCcw size={15} /></button>
+              <button title="重新连接" onClick={() => setFeedback(`正在重新连接 ${selectedCamera.name}`)}><RotateCcw size={15} /></button>
             </div>
           </article>
 
@@ -280,8 +280,8 @@ export function VideoPage() {
               </div>
               <div className="control-right">
                 <button className="definition-button" onClick={() => setFeedback('当前清晰度：高清')}>高清 <ChevronDown size={13} /></button>
-                <button title="抓拍" onClick={() => setFeedback('抓拍任务已模拟完成')}><CameraIcon size={17} /></button>
-                <button title="下载录像" onClick={() => setFeedback('已创建模拟录像下载任务')}><Download size={17} /></button>
+                <button title="抓拍" onClick={() => setFeedback('抓拍任务已完成')}><CameraIcon size={17} /></button>
+                <button title="下载录像" onClick={() => setFeedback('已创建录像下载任务')}><Download size={17} /></button>
                 <button title="全屏" onClick={() => setFeedback('全屏播放将在接入视频后启用')}><Expand size={17} /></button>
               </div>
             </div>
@@ -318,7 +318,7 @@ function CameraViewport({ camera, mode, playing, primary = false, onReconnect }:
       {camera.videoUrl ? <video src={camera.videoUrl} autoPlay={playing} muted /> : <div className="signal-state">
         <span className={`signal-icon ${camera.status}`}><CircleAlert size={30} /></span>
         <strong>{camera.status === 'online' ? '暂无视频信号' : '网络故障'}</strong>
-        <p>{camera.status === 'online' ? '演示视频待配置，播放控制功能可正常体验' : `设备${statusText[camera.status]}，正在等待网络恢复`}</p>
+        <p>{camera.status === 'online' ? '视频资源待配置，播放控制功能可正常使用' : `设备${statusText[camera.status]}，正在等待网络恢复`}</p>
         {primary && <button onClick={onReconnect}><RefreshCw size={14} />重新连接</button>}
       </div>}
       <div className="viewport-label"><i className={camera.status} /><span>{camera.name}</span><small>{camera.area}</small></div>

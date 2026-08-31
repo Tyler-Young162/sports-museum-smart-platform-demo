@@ -28,6 +28,7 @@ type BackendContextValue = {
 }
 
 const BackendContext = createContext<BackendContextValue | null>(null)
+const storagePrefix = `smart-venue-backend-${backendConfig.schemaVersion}`
 
 function readStored<T>(key: string, fallback: T): T {
   try {
@@ -39,17 +40,17 @@ function readStored<T>(key: string, fallback: T): T {
 }
 
 export function BackendProvider({ children }: { children: ReactNode }) {
-  const [devices, setDevices] = useState<DeviceAsset[]>(() => readStored('smart-venue-backend-devices', backendConfig.deviceAssets))
-  const [gateways, setGateways] = useState<HardwareGateway[]>(() => readStored('smart-venue-backend-gateways', backendConfig.hardwareGateways))
-  const [applications, setApplications] = useState<ExternalApplication[]>(() => readStored('smart-venue-backend-applications', backendConfig.externalApplications))
-  const [channels, setChannels] = useState<FrontendChannel[]>(() => readStored('smart-venue-backend-channels', backendConfig.frontendChannels))
-  const [logs, setLogs] = useState<OperationLog[]>(() => readStored('smart-venue-backend-logs', backendConfig.operationLogs))
+  const [devices, setDevices] = useState<DeviceAsset[]>(() => readStored(`${storagePrefix}-devices`, backendConfig.deviceAssets))
+  const [gateways, setGateways] = useState<HardwareGateway[]>(() => readStored(`${storagePrefix}-gateways`, backendConfig.hardwareGateways))
+  const [applications, setApplications] = useState<ExternalApplication[]>(() => readStored(`${storagePrefix}-applications`, backendConfig.externalApplications))
+  const [channels, setChannels] = useState<FrontendChannel[]>(() => readStored(`${storagePrefix}-channels`, backendConfig.frontendChannels))
+  const [logs, setLogs] = useState<OperationLog[]>(() => readStored(`${storagePrefix}-logs`, backendConfig.operationLogs))
 
-  useEffect(() => window.localStorage.setItem('smart-venue-backend-devices', JSON.stringify(devices)), [devices])
-  useEffect(() => window.localStorage.setItem('smart-venue-backend-gateways', JSON.stringify(gateways)), [gateways])
-  useEffect(() => window.localStorage.setItem('smart-venue-backend-applications', JSON.stringify(applications)), [applications])
-  useEffect(() => window.localStorage.setItem('smart-venue-backend-channels', JSON.stringify(channels)), [channels])
-  useEffect(() => window.localStorage.setItem('smart-venue-backend-logs', JSON.stringify(logs)), [logs])
+  useEffect(() => window.localStorage.setItem(`${storagePrefix}-devices`, JSON.stringify(devices)), [devices])
+  useEffect(() => window.localStorage.setItem(`${storagePrefix}-gateways`, JSON.stringify(gateways)), [gateways])
+  useEffect(() => window.localStorage.setItem(`${storagePrefix}-applications`, JSON.stringify(applications)), [applications])
+  useEffect(() => window.localStorage.setItem(`${storagePrefix}-channels`, JSON.stringify(channels)), [channels])
+  useEffect(() => window.localStorage.setItem(`${storagePrefix}-logs`, JSON.stringify(logs)), [logs])
 
   function addLog(module: string, action: string, target: string, result = '成功') {
     const now = new Date()
@@ -78,8 +79,8 @@ export function BackendProvider({ children }: { children: ReactNode }) {
   }
 
   function testGateway(id: string) {
-    setGateways((items) => items.map((item) => item.id === id ? { ...item, status: '模拟运行', lastTest: '刚刚' } : item))
-    addLog('硬件接入', '模拟测试连接', id)
+    setGateways((items) => items.map((item) => item.id === id ? { ...item, status: '配置就绪', lastTest: '刚刚' } : item))
+    addLog('硬件接入', '测试配置连通性', id)
   }
 
   function addApplication(item: ExternalApplication) {

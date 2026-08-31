@@ -3,30 +3,114 @@
     "dateLabel": "2026年8月24日 · 星期一",
     "openStatus": "场馆开放运行中",
     "overviewStats": [
-      { "label": "设备总数", "value": "286", "note": "在线 274", "tone": "cyan" },
-      { "label": "今日告警", "value": "12", "note": "待处理 3", "tone": "orange" },
-      { "label": "待办工单", "value": "8", "note": "即将超时 1", "tone": "purple" },
-      { "label": "今日通行", "value": "1,428", "note": "访客 86", "tone": "green" }
+      {
+        "label": "设备总数",
+        "value": "396",
+        "note": "已登记 396",
+        "tone": "cyan"
+      },
+      {
+        "label": "今日告警",
+        "value": "12",
+        "note": "待处理 3",
+        "tone": "orange"
+      },
+      {
+        "label": "待办工单",
+        "value": "8",
+        "note": "即将超时 1",
+        "tone": "purple"
+      },
+      {
+        "label": "今日通行",
+        "value": "1,428",
+        "note": "访客 86",
+        "tone": "green"
+      }
     ],
     "trendData": [
-      { "time": "08:00", "alarms": 2, "visitors": 68 },
-      { "time": "09:00", "alarms": 4, "visitors": 176 },
-      { "time": "10:00", "alarms": 3, "visitors": 284 },
-      { "time": "11:00", "alarms": 5, "visitors": 306 },
-      { "time": "12:00", "alarms": 2, "visitors": 218 },
-      { "time": "13:00", "alarms": 3, "visitors": 246 },
-      { "time": "14:00", "alarms": 1, "visitors": 130 }
+      {
+        "time": "08:00",
+        "alarms": 2,
+        "visitors": 68
+      },
+      {
+        "time": "09:00",
+        "alarms": 4,
+        "visitors": 176
+      },
+      {
+        "time": "10:00",
+        "alarms": 3,
+        "visitors": 284
+      },
+      {
+        "time": "11:00",
+        "alarms": 5,
+        "visitors": 306
+      },
+      {
+        "time": "12:00",
+        "alarms": 2,
+        "visitors": 218
+      },
+      {
+        "time": "13:00",
+        "alarms": 3,
+        "visitors": 246
+      },
+      {
+        "time": "14:00",
+        "alarms": 1,
+        "visitors": 130
+      }
     ],
     "systemStatus": [
-      { "key": "video", "label": "视频监控", "value": "84 / 88", "status": "4台离线", "tone": "warning" },
-      { "key": "access", "label": "门禁通行", "value": "35 / 36", "status": "1台异常", "tone": "warning" },
-      { "key": "network", "label": "无线网络", "value": "62 / 62", "status": "运行正常", "tone": "success" },
-      { "key": "environment", "label": "动环传感", "value": "42 / 42", "status": "运行正常", "tone": "success" }
+      {
+        "key": "video",
+        "label": "视频监控",
+        "value": "112 / 112",
+        "status": "现场清单已加载",
+        "tone": "success"
+      },
+      {
+        "key": "access",
+        "label": "门禁通行",
+        "value": "150 / 150",
+        "status": "现场清单已加载",
+        "tone": "success"
+      },
+      {
+        "key": "network",
+        "label": "无线网络",
+        "value": "42 / 42",
+        "status": "现场清单已加载",
+        "tone": "success"
+      },
+      {
+        "key": "environment",
+        "label": "动环设备",
+        "value": "2 / 2",
+        "status": "配置已登记",
+        "tone": "success"
+      }
     ],
     "mapSummary": [
-      { "label": "正常", "value": 274, "tone": "normal" },
-      { "label": "异常", "value": 9, "tone": "warning" },
-      { "label": "告警", "value": 3, "tone": "alarm" }
+      {
+        "label": "正常",
+        "value": 386,
+        "tone": "normal"
+      },
+      {
+        "label": "待配置",
+        "value": 9,
+        "tone": "warning"
+      },
+      {
+        "label": "预警",
+        "value": 1,
+        "tone": "alarm"
+      }
     ]
   },
   "initialAlarms": [
@@ -168,26 +252,26 @@
       "level": "提示",
       "type": "负载预警",
       "source": "无线网络系统",
-      "location": "一层·互动体验区",
-      "device": "AP-F1-008",
+      "location": "1F北",
+      "device": "1F07",
       "time": "2026-08-24 09:16:22",
       "status": "已关闭",
-      "description": "单AP接入终端达到62台，超过建议阈值50台，系统已自动引导部分终端漫游。",
+      "description": "1F北区域单AP接入终端达到26台，超过预警阈值24台，系统已自动触发漫游均衡。",
       "timeline": [
         {
           "time": "09:16:22",
           "title": "AP负载预警",
-          "detail": "当前接入62台终端"
+          "detail": "当前接入26台终端"
         },
         {
           "time": "09:18:02",
           "title": "负载自动均衡",
-          "detail": "18台终端迁移至AP-F1-009"
+          "detail": "6台终端迁移至1F08"
         },
         {
           "time": "09:20:35",
           "title": "告警自动恢复",
-          "detail": "当前接入44台终端"
+          "detail": "当前接入20台终端"
         }
       ]
     }
@@ -576,8 +660,8 @@
       "status": "告警"
     },
     {
-      "id": "AP-F1-008",
-      "name": "互动体验区AP",
+      "id": "1F07",
+      "name": "1F北 AP-1F07",
       "type": "无线AP",
       "floor": "F1",
       "x": 72,
@@ -732,54 +816,424 @@
   ],
   "accessPoints": [
     {
-      "id": "AP-F1-001",
-      "name": "序厅AP-01",
-      "location": "一层·序厅",
-      "clients": 28,
-      "traffic": "126 Mbps",
+      "id": "B1F01",
+      "name": "B1F AP-B1F01",
+      "location": "B1F",
+      "clients": 12,
+      "traffic": "48 Mbps",
       "channel": "36",
       "status": "在线",
-      "uptime": "32天"
+      "uptime": "30天"
     },
     {
-      "id": "AP-F1-008",
-      "name": "互动区AP-08",
-      "location": "一层·互动体验区",
-      "clients": 44,
-      "traffic": "286 Mbps",
-      "channel": "44",
-      "status": "高负载",
-      "uptime": "18天"
-    },
-    {
-      "id": "AP-F2-003",
-      "name": "冠军厅AP-03",
-      "location": "二层·冠军荣誉厅",
-      "clients": 21,
-      "traffic": "98 Mbps",
-      "channel": "149",
-      "status": "在线",
-      "uptime": "32天"
-    },
-    {
-      "id": "AP-F2-006",
-      "name": "临展区AP-06",
-      "location": "二层·临时展区",
-      "clients": 17,
-      "traffic": "72 Mbps",
-      "channel": "157",
-      "status": "在线",
-      "uptime": "12天"
-    },
-    {
-      "id": "AP-B1-001",
-      "name": "办公区AP-01",
-      "location": "地下一层·办公区",
-      "clients": 12,
+      "id": "B1F02",
+      "name": "B1F AP-B1F02",
+      "location": "B1F",
+      "clients": 10,
       "traffic": "42 Mbps",
       "channel": "40",
       "status": "在线",
-      "uptime": "32天"
+      "uptime": "30天"
+    },
+    {
+      "id": "B1F03",
+      "name": "B1F AP-B1F03",
+      "location": "B1F",
+      "clients": 14,
+      "traffic": "56 Mbps",
+      "channel": "44",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "B1F04",
+      "name": "B1F AP-B1F04",
+      "location": "B1F",
+      "clients": 9,
+      "traffic": "36 Mbps",
+      "channel": "48",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "B1F05",
+      "name": "B1F AP-B1F05",
+      "location": "B1F",
+      "clients": 13,
+      "traffic": "52 Mbps",
+      "channel": "149",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "B1F06",
+      "name": "B1F AP-B1F06",
+      "location": "B1F",
+      "clients": 11,
+      "traffic": "44 Mbps",
+      "channel": "153",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "B1F07",
+      "name": "B1F AP-B1F07",
+      "location": "B1F",
+      "clients": 15,
+      "traffic": "58 Mbps",
+      "channel": "157",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "B1F08",
+      "name": "B1F AP-B1F08",
+      "location": "B1F",
+      "clients": 10,
+      "traffic": "40 Mbps",
+      "channel": "161",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "B1F09",
+      "name": "B1F AP-B1F09",
+      "location": "B1F",
+      "clients": 8,
+      "traffic": "32 Mbps",
+      "channel": "36",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "B1F10",
+      "name": "B1F AP-B1F10",
+      "location": "B1F",
+      "clients": 12,
+      "traffic": "46 Mbps",
+      "channel": "40",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F01",
+      "name": "1F北 AP-1F01",
+      "location": "1F北",
+      "clients": 18,
+      "traffic": "72 Mbps",
+      "channel": "44",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F02",
+      "name": "1F北 AP-1F02",
+      "location": "1F北",
+      "clients": 20,
+      "traffic": "80 Mbps",
+      "channel": "48",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F03",
+      "name": "1F北 AP-1F03",
+      "location": "1F北",
+      "clients": 22,
+      "traffic": "88 Mbps",
+      "channel": "149",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F04",
+      "name": "1F北 AP-1F04",
+      "location": "1F北",
+      "clients": 19,
+      "traffic": "76 Mbps",
+      "channel": "153",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F05",
+      "name": "1F北 AP-1F05",
+      "location": "1F北",
+      "clients": 24,
+      "traffic": "96 Mbps",
+      "channel": "157",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F06",
+      "name": "1F北 AP-1F06",
+      "location": "1F北",
+      "clients": 21,
+      "traffic": "84 Mbps",
+      "channel": "161",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F07",
+      "name": "1F北 AP-1F07",
+      "location": "1F北",
+      "clients": 26,
+      "traffic": "104 Mbps",
+      "channel": "36",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F08",
+      "name": "1F北 AP-1F08",
+      "location": "1F北",
+      "clients": 23,
+      "traffic": "92 Mbps",
+      "channel": "40",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F09",
+      "name": "1F北 AP-1F09",
+      "location": "1F北",
+      "clients": 20,
+      "traffic": "78 Mbps",
+      "channel": "44",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F10",
+      "name": "1F北 AP-1F10",
+      "location": "1F北",
+      "clients": 18,
+      "traffic": "70 Mbps",
+      "channel": "48",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F11",
+      "name": "1F北 AP-1F11",
+      "location": "1F北",
+      "clients": 22,
+      "traffic": "86 Mbps",
+      "channel": "149",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F12",
+      "name": "1F北 AP-1F12",
+      "location": "1F北",
+      "clients": 19,
+      "traffic": "74 Mbps",
+      "channel": "153",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F13",
+      "name": "1F北 AP-1F13",
+      "location": "1F北",
+      "clients": 21,
+      "traffic": "82 Mbps",
+      "channel": "157",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F14",
+      "name": "1F北 AP-1F14",
+      "location": "1F北",
+      "clients": 17,
+      "traffic": "68 Mbps",
+      "channel": "161",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F15",
+      "name": "1F北 AP-1F15",
+      "location": "1F北",
+      "clients": 25,
+      "traffic": "100 Mbps",
+      "channel": "36",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F16",
+      "name": "1F北 AP-1F16",
+      "location": "1F北",
+      "clients": 20,
+      "traffic": "79 Mbps",
+      "channel": "40",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F17",
+      "name": "1F北 AP-1F17",
+      "location": "1F北",
+      "clients": 23,
+      "traffic": "90 Mbps",
+      "channel": "44",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F18",
+      "name": "1F北 AP-1F18",
+      "location": "1F北",
+      "clients": 18,
+      "traffic": "72 Mbps",
+      "channel": "48",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F19",
+      "name": "1F北 AP-1F19",
+      "location": "1F北",
+      "clients": 21,
+      "traffic": "84 Mbps",
+      "channel": "149",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F20",
+      "name": "1F北 AP-1F20",
+      "location": "1F北",
+      "clients": 19,
+      "traffic": "75 Mbps",
+      "channel": "153",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F21",
+      "name": "1F北 AP-1F21",
+      "location": "1F北",
+      "clients": 22,
+      "traffic": "88 Mbps",
+      "channel": "157",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F22",
+      "name": "1F南 AP-1F22",
+      "location": "1F南",
+      "clients": 16,
+      "traffic": "64 Mbps",
+      "channel": "161",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F23",
+      "name": "1F南 AP-1F23",
+      "location": "1F南",
+      "clients": 15,
+      "traffic": "60 Mbps",
+      "channel": "36",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F24",
+      "name": "1F南 AP-1F24",
+      "location": "1F南",
+      "clients": 17,
+      "traffic": "68 Mbps",
+      "channel": "40",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F25",
+      "name": "1F南 AP-1F25",
+      "location": "1F南",
+      "clients": 18,
+      "traffic": "72 Mbps",
+      "channel": "44",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F26",
+      "name": "1F南 AP-1F26",
+      "location": "1F南",
+      "clients": 14,
+      "traffic": "56 Mbps",
+      "channel": "48",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F27",
+      "name": "1F南 AP-1F27",
+      "location": "1F南",
+      "clients": 16,
+      "traffic": "62 Mbps",
+      "channel": "149",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F28",
+      "name": "1F南 AP-1F28",
+      "location": "1F南",
+      "clients": 13,
+      "traffic": "52 Mbps",
+      "channel": "153",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F29",
+      "name": "1F南 AP-1F29",
+      "location": "1F南",
+      "clients": 17,
+      "traffic": "66 Mbps",
+      "channel": "157",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F30",
+      "name": "1F南 AP-1F30",
+      "location": "1F南",
+      "clients": 15,
+      "traffic": "60 Mbps",
+      "channel": "161",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F31",
+      "name": "1F南 AP-1F31",
+      "location": "1F南",
+      "clients": 14,
+      "traffic": "58 Mbps",
+      "channel": "36",
+      "status": "在线",
+      "uptime": "30天"
+    },
+    {
+      "id": "1F32",
+      "name": "1F南 AP-1F32",
+      "location": "1F南",
+      "clients": 16,
+      "traffic": "64 Mbps",
+      "channel": "40",
+      "status": "在线",
+      "uptime": "30天"
     }
   ],
   "systemInterfaces": [
@@ -788,9 +1242,9 @@
       "name": "视频监控系统",
       "vendor": "待客户确认",
       "method": "GB/T 28181 / SDK",
-      "adapter": "MockVideoAdapter",
-      "devices": "10路模拟摄像头",
-      "status": "模拟运行",
+      "adapter": "VideoIntegrationAdapter",
+      "devices": "112路现场摄像头",
+      "status": "配置就绪",
       "sync": "实时"
     },
     {
@@ -798,9 +1252,9 @@
       "name": "人员通行系统",
       "vendor": "待客户确认",
       "method": "SDK / REST API",
-      "adapter": "MockAccessAdapter",
-      "devices": "6个模拟门禁",
-      "status": "模拟运行",
+      "adapter": "AccessIntegrationAdapter",
+      "devices": "150项人员通行设备",
+      "status": "配置就绪",
       "sync": "实时"
     },
     {
@@ -808,9 +1262,9 @@
       "name": "信息发布系统",
       "vendor": "待客户确认",
       "method": "SDK",
-      "adapter": "MockPublishAdapter",
-      "devices": "4块模拟屏幕",
-      "status": "模拟运行",
+      "adapter": "PublishIntegrationAdapter",
+      "devices": "2块现场发布屏",
+      "status": "配置就绪",
       "sync": "30秒"
     },
     {
@@ -818,9 +1272,9 @@
       "name": "背景音乐系统",
       "vendor": "待客户确认",
       "method": "SDK",
-      "adapter": "MockAudioAdapter",
-      "devices": "4个模拟分区",
-      "status": "模拟运行",
+      "adapter": "AudioIntegrationAdapter",
+      "devices": "18项背景音乐设备",
+      "status": "配置就绪",
       "sync": "30秒"
     },
     {
@@ -828,9 +1282,9 @@
       "name": "无线网络系统",
       "vendor": "待客户确认",
       "method": "SNMP / API",
-      "adapter": "MockNetworkAdapter",
-      "devices": "62个模拟AP",
-      "status": "模拟运行",
+      "adapter": "NetworkIntegrationAdapter",
+      "devices": "42个现场AP",
+      "status": "配置就绪",
       "sync": "60秒"
     },
     {
@@ -838,9 +1292,9 @@
       "name": "机房动环系统",
       "vendor": "待客户确认",
       "method": "SDK / Modbus",
-      "adapter": "MockEnvironmentAdapter",
-      "devices": "6个模拟传感器",
-      "status": "模拟运行",
+      "adapter": "EnvironmentIntegrationAdapter",
+      "devices": "2项机房动环设备",
+      "status": "配置就绪",
       "sync": "10秒"
     },
     {
@@ -848,9 +1302,9 @@
       "name": "UPS电源系统",
       "vendor": "待客户确认",
       "method": "SNMP / 私有协议",
-      "adapter": "MockUpsAdapter",
-      "devices": "2台模拟UPS",
-      "status": "模拟运行",
+      "adapter": "UpsIntegrationAdapter",
+      "devices": "7台UPS设备",
+      "status": "配置就绪",
       "sync": "10秒"
     }
   ],
@@ -882,7 +1336,7 @@
     {
       "id": "screen-publish",
       "title": "信息内容发布",
-      "description": "选择屏幕→选择节目单→预览→模拟发布→形成发布记录",
+      "description": "选择屏幕→选择节目单→预览→发布测试→形成发布记录",
       "module": "信息发布",
       "duration": "约2分钟",
       "tone": "purple"

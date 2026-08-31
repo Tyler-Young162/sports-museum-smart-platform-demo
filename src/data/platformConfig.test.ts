@@ -4,18 +4,19 @@ import project from '../../config/project.json'
 import cameras from '../../public/config/cameras.json'
 import backend from '../../config/backend.json'
 import publicPortal from '../../config/public.json'
+import fieldData from '../../config/field-data.json'
 
-describe('Demo 配置边界', () => {
-  it('第一阶段保持 mock 模式且接口不冒充真实联调', () => {
+describe('平台配置边界', () => {
+  it('内部数据模式保持隔离且接口不冒充已完成真实联调', () => {
     expect(project.dataMode).toBe('mock')
     for (const item of platform.systemInterfaces) {
-      expect(item.adapter).toMatch(/^Mock/)
-      expect(item.status).toBe('模拟运行')
+      expect(item.adapter).toMatch(/IntegrationAdapter$/)
+      expect(item.status).toBe('配置就绪')
       expect(item.vendor).toBe('待客户确认')
     }
   })
 
-  it('所有模块都提供可演示的模拟记录', () => {
+  it('所有模块都提供完整的业务记录', () => {
     const collections = [
       platform.initialAlarms, platform.initialWorkOrders, platform.accessRecords,
       platform.personnel, platform.visitors, platform.vehicles, platform.displayScreens,
@@ -55,10 +56,19 @@ describe('Demo 配置边界', () => {
     expect(backend.frontendChannels.some((item) => item.route === '/')).toBe(true)
   })
 
-  it('技术后台清单完整且保持模拟接入边界', () => {
+  it('技术后台清单完整且保持接入边界', () => {
     expect(backend.deviceAssets.length).toBeGreaterThan(0)
     expect(backend.externalApplications.length).toBeGreaterThan(0)
     expect(backend.apiEndpoints.length).toBeGreaterThan(0)
-    for (const item of backend.hardwareGateways) expect(item.adapter).toMatch(/^Mock/)
+    for (const item of backend.hardwareGateways) expect(item.adapter).toMatch(/IntegrationAdapter$/)
+  })
+
+  it('现场脱敏配置已加载且数量口径一致', () => {
+    expect(cameras.cameras).toHaveLength(112)
+    expect(platform.accessPoints).toHaveLength(42)
+    expect(backend.deviceAssets.filter((item) => item.category === '人员通行')).toHaveLength(150)
+    expect(fieldData.vlanSegments.length).toBeGreaterThan(0)
+    expect(fieldData.stageLightingPages.length).toBeGreaterThan(0)
+    expect(platform.systemInterfaces.find((item) => item.id === 'IF-VIDEO')?.devices).toBe(`${cameras.cameras.length}路现场摄像头`)
   })
 })

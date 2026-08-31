@@ -24,5 +24,5 @@ export const moduleConfig: ModuleConfig[] = [
   { key: 'network', label: '无线网络', heading: '无线网络管理', eyebrow: 'WIRELESS NETWORK', path: '/network', description: 'AP、终端、流量与网络告警' },
   { key: 'interfaces', label: '接口管理', heading: '接口管理', eyebrow: 'SYSTEM INTEGRATION', path: '/interfaces', description: 'SDK、协议及系统适配状态' },
   { key: 'backend', label: '技术后台', heading: '管理与技术后台', eyebrow: 'TECHNICAL ADMINISTRATION', path: '/backend', description: '设备、协议、外部系统和前端渠道配置' },
-  { key: 'demo', label: '演示控制台', heading: '演示控制台', eyebrow: 'DEMO SCENARIO CONTROL', path: '/demo', description: '稳定触发、观察和重置模拟演示场景' },
+  { key: 'demo', label: '场景控制台', heading: '场景控制台', eyebrow: 'SCENARIO CONTROL', path: '/demo', description: '系统场景验证、事件触发与状态重置' },
 ]

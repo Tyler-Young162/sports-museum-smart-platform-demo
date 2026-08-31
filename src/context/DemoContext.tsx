@@ -68,9 +68,9 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     const messages: Record<string, string> = {
       'camera-offline': '已触发“摄像头离线”场景，请前往告警中心查看',
       'temperature-high': '已触发“机房温度升高”场景，请前往动环或告警中心查看',
-      'visitor-entry': '已启动访客预约入场演示',
-      'screen-publish': '已启动信息发布演示',
-      'ups-battery': '已触发UPS电池供电演示',
+      'visitor-entry': '已启动访客预约入场场景',
+      'screen-publish': '已启动信息发布场景',
+      'ups-battery': '已触发UPS电池供电场景',
     }
     const alarmIdByScenario: Record<string, string> = {
       'camera-offline': 'AL202608240031',
@@ -82,17 +82,17 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       setAlarms((items) => items.map((alarm) => {
         if (alarm.id !== targetAlarmId) return alarm
         const { relatedWorkOrder: _relatedWorkOrder, ...rest } = alarm
-        return { ...rest, status: '待确认', timeline: [...alarm.timeline, { time: '刚刚', title: '演示场景触发', detail: '演示控制台重新触发该模拟事件' }] }
+        return { ...rest, status: '待确认', timeline: [...alarm.timeline, { time: '刚刚', title: '验证场景触发', detail: '场景控制台重新触发该测试事件' }] }
       }))
       setWorkOrders((items) => items.filter((item) => !item.source.includes(targetAlarmId)))
     }
-    setScenarioMessage(messages[id] ?? '演示场景已启动')
+    setScenarioMessage(messages[id] ?? '验证场景已启动')
   }
 
   function resetDemo() {
     setAlarms(initialAlarms)
     setWorkOrders(initialWorkOrders)
-    setScenarioMessage('全部演示数据已恢复到初始状态')
+    setScenarioMessage('全部场景数据已恢复到初始状态')
   }
 
   const value = useMemo(() => ({ alarms, workOrders, scenarioMessage, acknowledgeAlarm, dispatchAlarm, closeAlarm, advanceWorkOrder, triggerScenario, resetDemo, clearScenarioMessage: () => setScenarioMessage('') }), [alarms, workOrders, scenarioMessage])

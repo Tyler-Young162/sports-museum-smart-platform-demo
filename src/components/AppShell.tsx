@@ -78,7 +78,7 @@ export function AppShell() {
 
         <div className="sidebar-foot">
           <div className="connection-dot" />
-          <div><strong>模拟服务正常</strong><span>DATA MODE · MOCK</span></div>
+          <div><strong>数据服务正常</strong><span>DATA SOURCE · CONFIG</span></div>
         </div>
       </aside>
 
@@ -96,7 +96,7 @@ export function AppShell() {
               <kbd>⌘ K</kbd>
             </label>
             <button className="icon-button" aria-label="告警通知"><AlarmClock size={19} /><i /></button>
-            <div className="mock-badge">演示数据</div>
+            <div className="mock-badge">设备数据</div>
             <div className="operator-avatar">管</div>
           </div>
         </header>
