@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { initialAlarms, initialWorkOrders, type AlarmRecord, type WorkOrderRecord } from '../data/platformMock'
+import { initialAlarms, initialWorkOrders, type AlarmRecord, type PropertyAlarmInput, type WorkOrderRecord } from '../data/platformMock'
 
 type DemoContextValue = {
   alarms: AlarmRecord[]
@@ -8,6 +8,7 @@ type DemoContextValue = {
   acknowledgeAlarm: (id: string) => void
   dispatchAlarm: (id: string) => void
   closeAlarm: (id: string) => void
+  createPropertyAlarm: (input: PropertyAlarmInput) => string
   advanceWorkOrder: (id: string) => void
   triggerScenario: (id: string) => void
   resetDemo: () => void
@@ -57,6 +58,36 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setScenarioMessage('告警已关闭')
   }
 
+  function createPropertyAlarm(input: PropertyAlarmInput) {
+    const now = new Date()
+    const dateParts = new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Shanghai' }).formatToParts(now)
+    const datePart = (type: Intl.DateTimeFormatPartTypes) => dateParts.find((item) => item.type === type)?.value ?? ''
+    const date = `${datePart('year')}-${datePart('month')}-${datePart('day')}`
+    const time = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Shanghai' })
+    const id = `AL${date.replaceAll('-', '')}${String(alarms.length + 32).padStart(4, '0')}`
+    const media = Array.from({ length: input.mediaCount }, (_, index) => ({ id: `${id}-IMG-${index + 1}`, kind: '图片' as const, name: `现场照片${index + 1}.jpg`, capturedAt: `${date} ${time}`, status: '已上传' }))
+    const alarm: AlarmRecord = {
+      id,
+      title: input.title,
+      level: input.level,
+      type: input.type,
+      source: '物业移动端',
+      location: input.location,
+      device: '馆内事件',
+      time: `${date} ${time}`,
+      status: '待确认',
+      description: input.description,
+      reporter: input.reporter,
+      reporterPhone: input.reporterPhone,
+      reportChannel: '园区物业移动端',
+      media,
+      timeline: [{ time, title: '物业事件上报', detail: `${input.reporter}通过移动端提交，值班中心待确认` }],
+    }
+    setAlarms((items) => [alarm, ...items])
+    setScenarioMessage(`事件告警 ${id} 已上报`)
+    return id
+  }
+
   function advanceWorkOrder(id: string) {
     const nextStatus: Record<WorkOrderRecord['status'], WorkOrderRecord['status']> = { '待分配': '处理中', '处理中': '待验收', '待验收': '已完成', '已完成': '已完成' }
     const nextProgress: Record<WorkOrderRecord['status'], number> = { '待分配': 30, '处理中': 85, '待验收': 100, '已完成': 100 }
@@ -95,7 +126,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setScenarioMessage('全部场景数据已恢复到初始状态')
   }
 
-  const value = useMemo(() => ({ alarms, workOrders, scenarioMessage, acknowledgeAlarm, dispatchAlarm, closeAlarm, advanceWorkOrder, triggerScenario, resetDemo, clearScenarioMessage: () => setScenarioMessage('') }), [alarms, workOrders, scenarioMessage])
+  const value = useMemo(() => ({ alarms, workOrders, scenarioMessage, acknowledgeAlarm, dispatchAlarm, closeAlarm, createPropertyAlarm, advanceWorkOrder, triggerScenario, resetDemo, clearScenarioMessage: () => setScenarioMessage('') }), [alarms, workOrders, scenarioMessage])
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>
 }
 

@@ -14,8 +14,18 @@ export type AlarmRecord = {
   time: string
   status: AlarmStatus
   description: string
+  reporter?: string
+  reporterPhone?: string
+  reportChannel?: string
+  media?: { id: string; kind: '图片' | '视频'; name: string; capturedAt: string; status: string }[]
   relatedWorkOrder?: string
   timeline: { time: string; title: string; detail: string }[]
+}
+
+export type PropertyAlarmInput = Pick<AlarmRecord, 'title' | 'level' | 'type' | 'location' | 'description'> & {
+  reporter: string
+  reporterPhone: string
+  mediaCount: number
 }
 
 export type WorkOrderRecord = {

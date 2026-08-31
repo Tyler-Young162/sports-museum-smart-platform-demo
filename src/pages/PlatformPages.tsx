@@ -96,20 +96,27 @@ function EmptySearch() {
 }
 
 export function AlarmsPage() {
-  const { alarms, acknowledgeAlarm, dispatchAlarm, closeAlarm } = useDemo()
+  const { alarms, workOrders, acknowledgeAlarm, dispatchAlarm, closeAlarm, createPropertyAlarm } = useDemo()
   const [query, setQuery] = useState('')
   const [level, setLevel] = useState<'全部' | AlarmLevel>('全部')
+  const [type, setType] = useState('全部')
   const [status, setStatus] = useState<'全部' | AlarmStatus>('全部')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [selectedId, setSelectedId] = useState(alarms[0]?.id ?? '')
-  const selected = alarms.find((item) => item.id === selectedId) ?? alarms[0]
+  const [showReport, setShowReport] = useState(false)
+  const alarmTypes = useMemo(() => Array.from(new Set(alarms.map((item) => item.type))), [alarms])
   const filtered = alarms.filter((alarm) => {
     const keyword = query.trim().toLowerCase()
-    return (level === '全部' || alarm.level === level) && (status === '全部' || alarm.status === status) && (!keyword || [alarm.id, alarm.title, alarm.type, alarm.location, alarm.device].some((value) => value.toLowerCase().includes(keyword)))
+    const alarmDate = alarm.time.slice(0, 10)
+    return (level === '全部' || alarm.level === level) && (type === '全部' || alarm.type === type) && (status === '全部' || alarm.status === status) && (!startDate || alarmDate >= startDate) && (!endDate || alarmDate <= endDate) && (!keyword || [alarm.id, alarm.title, alarm.type, alarm.location, alarm.device, alarm.source].some((value) => value.toLowerCase().includes(keyword)))
   })
+  const selected = filtered.find((item) => item.id === selectedId) ?? filtered[0]
   const openCount = alarms.filter((item) => item.status !== '已关闭').length
+  function clearFilters() { setQuery(''); setLevel('全部'); setType('全部'); setStatus('全部'); setStartDate(''); setEndDate('') }
 
   return <div className="page operations-page">
-    <PageTitle eyebrow="ALARM OPERATION CENTER" title="告警中心管理" description="统一接收设备与馆内事件告警，形成确认、派单、处置和关闭闭环" action={<button className="primary-button" onClick={() => setSelectedId(alarms.find((item) => item.status === '待确认')?.id ?? alarms[0].id)}><BellRing size={16} />查看待确认告警</button>} />
+    <PageTitle eyebrow="ALARM OPERATION CENTER" title="告警中心管理" description="统一接收设备与馆内事件告警，形成确认、派单、处置和关闭闭环" action={<div className="page-action-group"><button className="outline-button" onClick={() => setSelectedId(alarms.find((item) => item.status === '待确认')?.id ?? alarms[0].id)}><BellRing size={16} />查看待确认</button><button className="primary-button" onClick={() => setShowReport(true)}><Smartphone size={16} />物业事件上报</button></div>} />
     <section className="metric-row five">
       <Metric label="今日告警" value={String(alarms.length)} note="较昨日 -8%" tone="cyan" icon={BellRing} />
       <Metric label="待确认" value={String(alarms.filter((item) => item.status === '待确认').length)} note="需要值班员确认" tone="red" icon={CircleAlert} />
@@ -120,10 +127,12 @@ export function AlarmsPage() {
     <section className="split-management alarms-layout">
       <article className="panel data-panel">
         <div className="data-toolbar">
-          <label className="module-search grow"><Search size={15} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索编号、名称、类型、位置或设备" /></label>
+          <label className="module-search grow"><Search size={15} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索告警编号、名称、位置、设备或来源" /></label>
           <label className="compact-select"><ListFilter size={14} /><select value={level} onChange={(event) => setLevel(event.target.value as typeof level)}><option>全部</option><option>严重</option><option>一般</option><option>提示</option></select></label>
+          <label className="compact-select"><CircleAlert size={14} /><select value={type} onChange={(event) => setType(event.target.value)}><option>全部</option>{alarmTypes.map((item) => <option key={item}>{item}</option>)}</select></label>
           <label className="compact-select"><Activity size={14} /><select value={status} onChange={(event) => setStatus(event.target.value as typeof status)}><option>全部</option><option>待确认</option><option>处理中</option><option>已关闭</option></select></label>
         </div>
+        <div className="alarm-date-filter"><span><CalendarClock size={14}/>发生时间</span><label>开始<input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label><i>至</i><label>结束<input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} /></label><button onClick={clearFilters}><RotateCcw size={13}/>重置条件</button></div>
         <div className="data-table alarm-table">
           <div className="table-head"><span>等级</span><span>告警信息</span><span>类型/来源</span><span>发生时间</span><span>状态</span></div>
           {filtered.length === 0 ? <EmptySearch /> : filtered.map((alarm) => <button key={alarm.id} className={selected?.id === alarm.id ? 'table-row active' : 'table-row'} onClick={() => setSelectedId(alarm.id)}>
@@ -136,25 +145,36 @@ export function AlarmsPage() {
         </div>
         <div className="table-footer"><span>共 {filtered.length} 条告警</span><span>数据来源：系统配置</span></div>
       </article>
-      {selected && <AlarmDetail alarm={selected} onAcknowledge={() => acknowledgeAlarm(selected.id)} onDispatch={() => dispatchAlarm(selected.id)} onClose={() => closeAlarm(selected.id)} />}
+      {selected && <AlarmDetail alarm={selected} workOrders={workOrders} onAcknowledge={() => acknowledgeAlarm(selected.id)} onDispatch={() => dispatchAlarm(selected.id)} onClose={() => closeAlarm(selected.id)} />}
     </section>
+    {showReport && <PropertyAlarmReport onClose={() => setShowReport(false)} onSubmit={(input) => { const id = createPropertyAlarm(input); setSelectedId(id); setShowReport(false) }} />}
   </div>
 }
 
-function AlarmDetail({ alarm, onAcknowledge, onDispatch, onClose }: { alarm: AlarmRecord; onAcknowledge: () => void; onDispatch: () => void; onClose: () => void }) {
+function AlarmDetail({ alarm, workOrders, onAcknowledge, onDispatch, onClose }: { alarm: AlarmRecord; workOrders: WorkOrderRecord[]; onAcknowledge: () => void; onDispatch: () => void; onClose: () => void }) {
+  const [mediaPreview, setMediaPreview] = useState<{ kind: '图片' | '视频'; name: string; status: string } | null>(null)
+  const media = alarm.media ?? [{ id: `${alarm.id}-IMG-1`, kind: '图片' as const, name: '现场抓拍01.jpg', capturedAt: alarm.time, status: '已归档' }, { id: `${alarm.id}-IMG-2`, kind: '图片' as const, name: '现场抓拍02.jpg', capturedAt: alarm.time, status: '已归档' }, { id: `${alarm.id}-VID-1`, kind: '视频' as const, name: '告警前后30秒录像', capturedAt: alarm.time, status: alarm.type === '设备离线' ? '资源待配置' : '可回看' }]
+  const relatedOrders = workOrders.filter((item) => item.source.includes(alarm.id) || item.id === alarm.relatedWorkOrder)
   return <aside className="panel detail-panel">
     <div className="detail-panel-head"><div><p className="panel-kicker">告警详情</p><h2>{alarm.title}</h2></div><StatusChip value={alarm.status} /></div>
     <div className="alert-banner"><CircleAlert size={20} /><div><strong>{alarm.id}</strong><span>{alarm.description}</span></div></div>
     <div className="detail-grid two">
-      <DetailItem label="告警等级" value={alarm.level} /><DetailItem label="告警类型" value={alarm.type} /><DetailItem label="来源系统" value={alarm.source} /><DetailItem label="关联设备" value={alarm.device} /><DetailItem label="发生位置" value={alarm.location} /><DetailItem label="发生时间" value={alarm.time} />
+      <DetailItem label="告警等级" value={alarm.level} /><DetailItem label="告警类型" value={alarm.type} /><DetailItem label="来源系统" value={alarm.source} /><DetailItem label="关联设备" value={alarm.device} /><DetailItem label="发生位置" value={alarm.location} /><DetailItem label="发生时间" value={alarm.time} />{alarm.reporter && <DetailItem label="上报人员" value={alarm.reporter} />}{alarm.reportChannel && <DetailItem label="上报渠道" value={alarm.reportChannel} />}
     </div>
-    <div className="media-placeholder"><div><ImageIcon size={20} /><span>关联图片</span><strong>2张关联抓拍</strong></div><div><Camera size={20} /><span>关联视频</span><strong>网络故障</strong></div></div>
+    <div className="detail-section-title"><span>关联图片和视频</span><small>{media.length}项附件</small></div>
+    <div className="alarm-media-list">{media.map((item, index) => <button key={item.id} onClick={() => setMediaPreview(item)}><span className={`alarm-media-thumb ${item.kind === '视频' ? 'video' : `image-${index + 1}`}`}>{item.kind === '视频' ? <Play size={19}/> : <ImageIcon size={19}/>}</span><span><strong>{item.name}</strong><small>{item.kind} · {item.status}</small></span><Maximize size={14}/></button>)}</div>
     <div className="detail-section-title"><span>处理动态</span><small>{alarm.timeline.length}条记录</small></div>
     <div className="event-timeline">{alarm.timeline.map((event, index) => <div key={`${event.time}-${index}`}><i className={index === alarm.timeline.length - 1 ? 'active' : ''} /><time>{event.time}</time><strong>{event.title}</strong><span>{event.detail}</span></div>)}</div>
-    <div className="detail-section-title"><span>关联工单</span></div>
-    {alarm.relatedWorkOrder ? <Link className="related-card" to="/workorders"><ClipboardCheck size={18} /><div><strong>{alarm.relatedWorkOrder}</strong><span>点击查看工单详情</span></div><ChevronRight size={16} /></Link> : <div className="no-related"><ClipboardCheck size={18} /><span>尚未关联工单</span></div>}
+    <div className="detail-section-title"><span>关联工单列表</span><small>{relatedOrders.length}张工单</small></div>
+    <div className="related-order-list">{relatedOrders.length > 0 ? relatedOrders.map((order) => <Link className="related-card" to="/workorders" key={order.id}><ClipboardCheck size={18} /><div><strong>{order.id} · {order.title}</strong><span>{order.department} · {order.assignee} · {order.status}</span></div><ChevronRight size={16} /></Link>) : <div className="no-related"><ClipboardCheck size={18} /><span>尚未关联工单，可通过下方“转为工单”创建</span></div>}</div>
     <div className="detail-footer-actions"><button onClick={onAcknowledge} disabled={alarm.status !== '待确认'}><Check size={15} />确认告警</button><button onClick={onDispatch}><Send size={15} />转为工单</button><button className="primary" onClick={onClose} disabled={alarm.status === '已关闭'}><CircleCheck size={15} />关闭告警</button></div>
+    {mediaPreview && <Modal title={mediaPreview.name} onClose={() => setMediaPreview(null)}><div className={`alarm-media-preview ${mediaPreview.kind === '视频' ? 'video' : 'image'}`}>{mediaPreview.kind === '视频' ? <><Play size={42}/><strong>{mediaPreview.status}</strong><span>厂家视频平台接入后在此加载告警录像</span></> : <><ImageIcon size={42}/><strong>现场附件预览</strong><span>{mediaPreview.status}</span></>}</div></Modal>}
   </aside>
+}
+
+function PropertyAlarmReport({ onClose, onSubmit }: { onClose: () => void; onSubmit: (input: { title: string; level: AlarmLevel; type: string; location: string; description: string; reporter: string; reporterPhone: string; mediaCount: number }) => void }) {
+  const [form, setForm] = useState({ title: '展厅设施异常', level: '一般' as AlarmLevel, type: '馆内事件', location: '一层互动体验区', description: '巡查发现互动设施外壳松动，已设置临时提示并上报处理。', reporter: '物业巡查员', reporterPhone: '138****6608', mediaCount: 2 })
+  return <Modal title="园区物业移动端 · 事件告警上报" onClose={onClose}><form className="alarm-report-form" onSubmit={(event) => { event.preventDefault(); onSubmit(form) }}><div className="report-channel-banner"><Smartphone size={20}/><div><strong>物业巡查上报</strong><span>提交后自动进入告警中心待确认队列</span></div><StatusChip value="移动端" /></div><div className="report-form-grid"><label>事件标题<input required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })}/></label><label>告警等级<select value={form.level} onChange={(event) => setForm({ ...form, level: event.target.value as AlarmLevel })}><option>严重</option><option>一般</option><option>提示</option></select></label><label>事件类型<select value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })}><option>馆内事件</option><option>设备故障</option><option>安全隐患</option><option>服务事件</option><option>环境异常</option></select></label><label>发生位置<input required value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })}/></label><label>上报人员<input required value={form.reporter} onChange={(event) => setForm({ ...form, reporter: event.target.value })}/></label><label>联系电话<input required value={form.reporterPhone} onChange={(event) => setForm({ ...form, reporterPhone: event.target.value })}/></label><label className="wide">事件描述<textarea required rows={3} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })}/></label><label className="wide report-upload"><ImageIcon size={18}/><span>现场附件</span><select value={form.mediaCount} onChange={(event) => setForm({ ...form, mediaCount: Number(event.target.value) })}><option value={0}>不上传</option><option value={1}>1张照片</option><option value={2}>2张照片</option><option value={3}>3张照片</option></select></label></div><div className="report-form-actions"><button type="button" onClick={onClose}>取消</button><button className="primary-button" type="submit"><Send size={15}/>提交事件告警</button></div></form></Modal>
 }
 
 export function AccessPage() {
