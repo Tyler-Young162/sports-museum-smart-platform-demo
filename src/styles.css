@@ -119,7 +119,7 @@ a { color: inherit; text-decoration: none; }
 .alarm-list { margin-top: 11px; }
 .alarm-row { min-height: 51px; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px 58px; align-items: center; gap: 11px; border-top: 1px solid var(--border-soft); }
 .level { height: 21px; display: grid; place-items: center; border-radius: 5px; font-size: 9px; }
-.level.严重 { color: #ff8c9c; background: rgba(255,97,119,.12); } .level.一般 { color: #ffb17b; background: rgba(255,156,91,.11); } .level.提示 { color: #72cfff; background: rgba(69,197,255,.1); }
+.level.一般 { color: #ffb17b; background: rgba(255,156,91,.11); } .level.提示 { color: #72cfff; background: rgba(69,197,255,.1); }
 .alarm-copy { min-width: 0; }
 .alarm-copy strong, .alarm-copy span { display: block; }
 .alarm-copy strong { overflow: hidden; color: #bfcfdf; font-size: 11px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
@@ -421,8 +421,8 @@ a { color: inherit; text-decoration: none; }
 .alarm-date-filter input { height: 27px; padding: 0 7px; color: #9ab1c3; background: #081727; border: 1px solid rgba(121,158,199,.12); border-radius: 5px; color-scheme: dark; font-size: 8px; }
 .alarm-date-filter i { color: #496277; font-style: normal; }
 .alarm-date-filter button { margin-left: auto; height: 27px; padding: 0 9px; color: #7792a7; background: transparent; border: 1px solid rgba(121,158,199,.12); border-radius: 5px; cursor: pointer; font-size: 8px; }
-.alert-banner { display: flex; gap: 10px; margin: 14px 0; padding: 12px; color: #ff8b9b; background: rgba(255,97,119,.055); border: 1px solid rgba(255,97,119,.12); border-radius: 8px; }
-.alert-banner div { min-width: 0; }.alert-banner strong, .alert-banner span { display: block; }.alert-banner strong { font-size: 9px; }.alert-banner span { margin-top: 5px; color: #8f7781; font-size: 8px; line-height: 1.6; }
+.alert-banner { display: flex; gap: 10px; margin: 14px 0; padding: 12px; color: #ffb174; background: rgba(255,156,91,.055); border: 1px solid rgba(255,156,91,.14); border-radius: 8px; }
+.alert-banner div { min-width: 0; }.alert-banner strong, .alert-banner span { display: block; }.alert-banner strong { font-size: 9px; }.alert-banner span { margin-top: 5px; color: #927e70; font-size: 8px; line-height: 1.6; }
 .media-placeholder { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 14px; }
 .media-placeholder > div { min-height: 65px; display: grid; grid-template-columns: 28px 1fr; grid-template-rows: auto auto; align-items: center; padding: 10px; color: #668da5; background: #091827; border: 1px solid rgba(121,158,199,.11); border-radius: 7px; }
 .media-placeholder svg { grid-row: 1/3; }.media-placeholder span, .media-placeholder strong { display: block; }.media-placeholder span { color: #546d80; font-size: 8px; }.media-placeholder strong { color: #8ca3b5; font-size: 8px; font-weight: 500; }

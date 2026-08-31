@@ -48,7 +48,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       return
     }
     const workOrderId = `WO20260824${String(workOrders.length + 19).padStart(4, '0')}`
-    setWorkOrders((items) => [{ id: workOrderId, title: `处置：${alarm.title}`, type: '告警处置', priority: alarm.level === '严重' ? '紧急' : '高', department: alarm.source.includes('视频') ? '安保部' : '设施运维部', assignee: '待分配', location: alarm.location, status: '待分配', createdAt: '2026-08-24 10:48', dueAt: '2026-08-24 12:48', progress: 5, source: `告警${alarm.id}` }, ...items])
+    setWorkOrders((items) => [{ id: workOrderId, title: `处置：${alarm.title}`, type: '告警处置', priority: alarm.level === '一般' ? '高' : '普通', department: alarm.source.includes('视频') ? '安保部' : '设施运维部', assignee: '待分配', location: alarm.location, status: '待分配', createdAt: '2026-08-24 10:48', dueAt: '2026-08-24 12:48', progress: 5, source: `告警${alarm.id}` }, ...items])
     setAlarms((items) => items.map((item) => item.id === id ? { ...item, status: '处理中', relatedWorkOrder: workOrderId, timeline: [...item.timeline, { time: '刚刚', title: '已转为工单', detail: `工单${workOrderId}已创建` }] } : item))
     setScenarioMessage(`工单 ${workOrderId} 已创建`)
   }

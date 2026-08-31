@@ -1,6 +1,6 @@
 import platformConfig from '../../config/platform.json'
 
-export type AlarmLevel = '严重' | '一般' | '提示'
+export type AlarmLevel = '一般' | '提示'
 export type AlarmStatus = '待确认' | '处理中' | '已关闭'
 
 export type AlarmRecord = {
