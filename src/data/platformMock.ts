@@ -1,6 +1,6 @@
 import platformConfig from '../../config/platform.json'
 
-export type AlarmLevel = '严重' | '一般' | '提示'
+export type AlarmLevel = '一般' | '提示'
 export type AlarmStatus = '待确认' | '处理中' | '已关闭'
 
 export type AlarmRecord = {
@@ -14,8 +14,18 @@ export type AlarmRecord = {
   time: string
   status: AlarmStatus
   description: string
+  reporter?: string
+  reporterPhone?: string
+  reportChannel?: string
+  media?: { id: string; kind: '图片' | '视频'; name: string; capturedAt: string; status: string }[]
   relatedWorkOrder?: string
   timeline: { time: string; title: string; detail: string }[]
+}
+
+export type PropertyAlarmInput = Pick<AlarmRecord, 'title' | 'level' | 'type' | 'location' | 'description'> & {
+  reporter: string
+  reporterPhone: string
+  mediaCount: number
 }
 
 export type WorkOrderRecord = {

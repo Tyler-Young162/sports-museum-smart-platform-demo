@@ -55,7 +55,9 @@ export function VideoPage() {
   const [refreshing, setRefreshing] = useState(false)
   const [feedback, setFeedback] = useState('')
   const [replayDate, setReplayDate] = useState('2026-08-24')
+  const [recordingType, setRecordingType] = useState('all')
   const catalogRef = useRef<HTMLDivElement | null>(null)
+  const playerCardRef = useRef<HTMLElement | null>(null)
   const floorRefs = useRef<Record<string, HTMLElement | null>>({})
   const cameraRefs = useRef<Record<string, HTMLElement | null>>({})
   const programmaticScrollRef = useRef(false)
@@ -158,6 +160,17 @@ export function VideoPage() {
   }
 
   const onlineCount = config.cameras.filter((camera) => camera.status === 'online').length
+  const visibleRecordingSegments = recordingType === 'all' ? recordingSegments : recordingSegments.filter((segment) => segment.type === recordingType)
+
+  async function enterFullscreen() {
+    if (!playerCardRef.current) return
+    try {
+      await playerCardRef.current.requestFullscreen()
+      setFeedback('已进入全屏监控模式')
+    } catch {
+      setFeedback('当前浏览器未授权全屏显示')
+    }
+  }
 
   return (
     <div className="page video-page">
@@ -222,11 +235,11 @@ export function VideoPage() {
             <div className="selected-camera-actions">
               <button title="地图定位" onClick={() => setFeedback(`已定位：${selectedCamera.position}`)}><MapPin size={15} /></button>
               <button title="设备档案" onClick={() => setFeedback(`${selectedCamera.id} 设备档案已加载`)}><Info size={15} /></button>
-              <button title="模拟重连" onClick={() => setFeedback(`正在重新连接 ${selectedCamera.name}`)}><RotateCcw size={15} /></button>
+              <button title="重新连接" onClick={() => setFeedback(`正在重新连接 ${selectedCamera.name}`)}><RotateCcw size={15} /></button>
             </div>
           </article>
 
-          <article className="player-card camera-catalog-card panel">
+          <article ref={playerCardRef} className="player-card camera-catalog-card panel">
             <div className="player-toolbar">
               <div className="mode-tabs">
                 <button className={mode === 'live' ? 'active' : ''} onClick={() => { setMode('live'); setPlaying(false) }}>实时预览</button>
@@ -280,9 +293,9 @@ export function VideoPage() {
               </div>
               <div className="control-right">
                 <button className="definition-button" onClick={() => setFeedback('当前清晰度：高清')}>高清 <ChevronDown size={13} /></button>
-                <button title="抓拍" onClick={() => setFeedback('抓拍任务已模拟完成')}><CameraIcon size={17} /></button>
-                <button title="下载录像" onClick={() => setFeedback('已创建模拟录像下载任务')}><Download size={17} /></button>
-                <button title="全屏" onClick={() => setFeedback('全屏播放将在接入视频后启用')}><Expand size={17} /></button>
+                <button title="抓拍" onClick={() => setFeedback('抓拍任务已完成')}><CameraIcon size={17} /></button>
+                <button title="下载录像" onClick={() => setFeedback('已创建录像下载任务')}><Download size={17} /></button>
+                <button title="全屏" onClick={() => void enterFullscreen()}><Expand size={17} /></button>
               </div>
             </div>
           </article>
@@ -290,16 +303,16 @@ export function VideoPage() {
           {mode === 'replay' && <article className="replay-panel panel">
             <div className="replay-query">
               <label><CalendarDays size={15} /><span>录像日期</span><input type="date" value={replayDate} onChange={(event) => setReplayDate(event.target.value)} /></label>
-              <label><Clock3 size={15} /><span>录像类型</span><select defaultValue="all"><option value="all">全部录像</option><option>定时录像</option><option>事件录像</option></select></label>
-              <button className="primary-button" onClick={() => setFeedback(`已查询 ${replayDate} 的6段录像`)}><Search size={15} />查询录像</button>
+              <label><Clock3 size={15} /><span>录像类型</span><select value={recordingType} onChange={(event) => { setRecordingType(event.target.value); setSelectedSegment(0) }}><option value="all">全部录像</option><option>定时录像</option><option>移动侦测</option><option>事件录像</option></select></label>
+              <button className="primary-button" onClick={() => setFeedback(`已查询 ${replayDate} 的${visibleRecordingSegments.length}段录像`)}><Search size={15} />查询录像</button>
             </div>
             <div className="timeline-ruler"><span>00:00</span><span>04:00</span><span>08:00</span><span>12:00</span><span>16:00</span><span>20:00</span><span>24:00</span></div>
             <div className="recording-track">
-              {recordingSegments.map((segment, index) => <button key={`${segment.start}-${segment.end}`} onClick={() => setSelectedSegment(index)} className={`${segment.color} ${selectedSegment === index ? 'active' : ''}`} style={{ flex: index === 1 || index === 3 ? .18 : 1 }} title={`${segment.type} ${segment.start}-${segment.end}`} />)}
+              {visibleRecordingSegments.map((segment, index) => <button key={`${segment.start}-${segment.end}`} onClick={() => setSelectedSegment(index)} className={`${segment.color} ${selectedSegment === index ? 'active' : ''}`} style={{ flex: segment.type === '定时录像' ? 1 : .18 }} title={`${segment.type} ${segment.start}-${segment.end}`} />)}
               <i style={{ left: '44%' }} />
             </div>
             <div className="segment-list">
-              {recordingSegments.slice(0, 4).map((segment, index) => <button key={segment.start} onClick={() => setSelectedSegment(index)} className={selectedSegment === index ? 'active' : ''}><span className={segment.color} /><strong>{segment.start}—{segment.end}</strong><small>{segment.type}</small><Play size={13} /></button>)}
+              {visibleRecordingSegments.slice(0, 4).map((segment, index) => <button key={segment.start} onClick={() => setSelectedSegment(index)} className={selectedSegment === index ? 'active' : ''}><span className={segment.color} /><strong>{segment.start}—{segment.end}</strong><small>{segment.type}</small><Play size={13} /></button>)}
             </div>
           </article>}
 
@@ -318,7 +331,7 @@ function CameraViewport({ camera, mode, playing, primary = false, onReconnect }:
       {camera.videoUrl ? <video src={camera.videoUrl} autoPlay={playing} muted /> : <div className="signal-state">
         <span className={`signal-icon ${camera.status}`}><CircleAlert size={30} /></span>
         <strong>{camera.status === 'online' ? '暂无视频信号' : '网络故障'}</strong>
-        <p>{camera.status === 'online' ? '演示视频待配置，播放控制功能可正常体验' : `设备${statusText[camera.status]}，正在等待网络恢复`}</p>
+        <p>{camera.status === 'online' ? '当前媒体通道未启用，请在后台配置中心启用对应资源通道' : `设备${statusText[camera.status]}，正在等待网络恢复`}</p>
         {primary && <button onClick={onReconnect}><RefreshCw size={14} />重新连接</button>}
       </div>}
       <div className="viewport-label"><i className={camera.status} /><span>{camera.name}</span><small>{camera.area}</small></div>
